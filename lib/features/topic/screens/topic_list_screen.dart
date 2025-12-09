@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learn_english/features/topic/screens/vocabulary_list_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'package:learn_english/features/auth/services/auth_service.dart';
@@ -117,9 +118,10 @@ class TopicListScreenState extends State<TopicListScreen> {
           subtitle: Text(t.description),
           // TODO: onTap -> chuyển sang màn danh sách từ trong bộ (cho cả admin & user)
           onTap: () {
-            // Navigator.push(context, MaterialPageRoute(
-            //   builder: (_) => WordListScreen(topic: t),
-            // ));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => VocabularyListScreen(topic: t)),
+            );
           },
           trailing: isAdmin
               ? PopupMenuButton(
@@ -157,9 +159,12 @@ class TopicListScreenState extends State<TopicListScreen> {
           child: InkWell(
             // TODO: onTap -> chuyển sang màn danh sách từ trong bộ
             onTap: () {
-              // Navigator.push(context, MaterialPageRoute(
-              //   builder: (_) => WordListScreen(topic: t),
-              // ));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => VocabularyListScreen(topic: t),
+                ),
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(12),

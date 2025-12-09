@@ -4,8 +4,8 @@ import 'package:learn_english/features/topic/screens/topic_list_screen.dart';
 import 'package:provider/provider.dart';
 import '../features/auth/services/auth_service.dart';
 import '../core/theme/app_theme.dart';
-import '../features/auth/data/models/word.dart';
-import '../features/auth/services/vocab_service.dart';
+import '../features/topic/models/vocabulary.dart';
+import '../features/topic/services/vocabulary_service.dart';
 import 'edit_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // Service to fetch vocabulary data
-  final VocabService _vocabService = VocabService();
+  final VocabularyService _vocabService = VocabularyService();
 
   int _currentStreak = 0;
   int _totalXP = 0;
@@ -728,8 +728,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ==================== WORD LIST ====================
   Widget _buildWordList() {
-    return StreamBuilder<List<Word>>(
-      stream: _vocabService.getWords(),
+    return StreamBuilder<List<Vocabulary>>(
+      stream: _vocabService.getAllVocabularies(),
       builder: (context, snapshot) {
         // Handle loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -772,11 +772,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: Text(
                   word.word,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 subtitle: Text(word.meaning),
                 trailing: Text(
-                  '/${word.ipa}/',
+                  '/${word.pronunciation}/',
                   style: TextStyle(color: AppTheme.textGrey),
                 ),
               ),
