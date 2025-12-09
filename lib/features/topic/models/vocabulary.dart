@@ -14,6 +14,8 @@ class Vocabulary {
   final String level; // Cấp độ: beginner, intermediate, advanced
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final List<String> tags; // noun, verb, adjective, idiom...
+  final String? partOfSpeech;
 
   Vocabulary({
     required this.id,
@@ -27,6 +29,8 @@ class Vocabulary {
     this.level = 'beginner',
     required this.createdAt,
     this.updatedAt,
+    this.tags = const [],
+    this.partOfSpeech,
   });
 
   /// Chuyển sang Map để lưu Firestore
