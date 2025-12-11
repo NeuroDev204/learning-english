@@ -24,6 +24,8 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
   final _synonymsController = TextEditingController();
 
   String _selectedLevel = 'beginner';
+  String? _selectedPartOfSpeech;
+  final Set<String> _selectedTags = {};
   bool _isLoading = false;
 
   @override
@@ -42,7 +44,6 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Parse synonyms từ string thành list
       final synonymsList = _synonymsController.text
           .split(',')
           .map((e) => e.trim())
@@ -58,6 +59,8 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
         example: _exampleController.text.trim(),
         synonyms: synonymsList,
         level: _selectedLevel,
+        partOfSpeech: _selectedPartOfSpeech,
+        tags: _selectedTags.toList(),
         createdAt: DateTime.now(),
       );
 
@@ -209,6 +212,82 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
               ),
               const SizedBox(height: 24),
 
+              // ✅ NEW: Part of Speech
+              const Text(
+                'Part of Speech',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textDark,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: PartOfSpeech.all.map((pos) {
+                  final isSelected = _selectedPartOfSpeech == pos;
+                  return ChoiceChip(
+                    label: Text(
+                      '${PartOfSpeech.getIcon(pos)} ${pos}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isSelected ? Colors.white : AppTheme.textDark,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedPartOfSpeech = selected ? pos : null;
+                      });
+                    },
+                    selectedColor: AppTheme.primaryBlue,
+                    backgroundColor: Colors.grey.shade100,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+
+              // ✅ NEW: Tags
+              const Text(
+                'Tags (Multiple selection)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textDark,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: VocabularyTags.all.map((tag) {
+                  final isSelected = _selectedTags.contains(tag);
+                  return FilterChip(
+                    label: Text(
+                      '${VocabularyTags.getIcon(tag)} ${tag}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isSelected ? Colors.white : AppTheme.textDark,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        if (selected) {
+                          _selectedTags.add(tag);
+                        } else {
+                          _selectedTags.remove(tag);
+                        }
+                      });
+                    },
+                    selectedColor: AppTheme.accentPink,
+                    backgroundColor: Colors.grey.shade100,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+
               // Level selector
               const Text(
                 'Difficulty Level *',
@@ -239,18 +318,18 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
                   color: AppTheme.paleBlue,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.info_outline,
                       color: AppTheme.primaryBlue,
                       size: 20,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Fields marked with * are required',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           color: AppTheme.textGrey,
                         ),
