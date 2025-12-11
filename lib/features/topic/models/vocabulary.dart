@@ -1,21 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Model cho từ vựng
-/// Mỗi từ vựng thuộc về 1 topic
+/// Model cho từ vựng - UPDATED with tags & part of speech
 class Vocabulary {
   final String id;
-  final String topicId; // ID của topic mà từ này thuộc về
-  final String word; // Từ tiếng Anh
-  final String pronunciation; // Phiên âm IPA
-  final String meaning; // Nghĩa tiếng Việt
-  final String example; // Câu ví dụ
-  final String? imageUrl; // URL hình ảnh minh họa (optional)
-  final List<String> synonyms; // Từ đồng nghĩa
-  final String level; // Cấp độ: beginner, intermediate, advanced
+  final String topicId;
+  final String word;
+  final String pronunciation;
+  final String meaning;
+  final String example;
+  final String? imageUrl;
+  final List<String> synonyms;
+  final String level; // beginner, intermediate, advanced
+
+  // ✅ NEW FIELDS
+  final String? partOfSpeech; // noun, verb, adjective, adverb, etc.
+  final List<String> tags; // idiom, phrasal-verb, slang, business, etc.
+
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final List<String> tags; // noun, verb, adjective, idiom...
-  final String? partOfSpeech;
 
   Vocabulary({
     required this.id,
@@ -27,10 +29,10 @@ class Vocabulary {
     this.imageUrl,
     this.synonyms = const [],
     this.level = 'beginner',
+    this.partOfSpeech,
+    this.tags = const [],
     required this.createdAt,
     this.updatedAt,
-    this.tags = const [],
-    this.partOfSpeech,
   });
 
   /// Chuyển sang Map để lưu Firestore
@@ -44,6 +46,8 @@ class Vocabulary {
       'imageUrl': imageUrl,
       'synonyms': synonyms,
       'level': level,
+      'partOfSpeech': partOfSpeech,
+      'tags': tags,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -61,6 +65,8 @@ class Vocabulary {
       imageUrl: map['imageUrl'],
       synonyms: List<String>.from(map['synonyms'] ?? []),
       level: map['level'] ?? 'beginner',
+      partOfSpeech: map['partOfSpeech'],
+      tags: List<String>.from(map['tags'] ?? []),
       createdAt: map['createdAt'] != null
           ? DateTime.parse(map['createdAt'])
           : DateTime.now(),
@@ -87,6 +93,8 @@ class Vocabulary {
     String? imageUrl,
     List<String>? synonyms,
     String? level,
+    String? partOfSpeech,
+    List<String>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -100,8 +108,154 @@ class Vocabulary {
       imageUrl: imageUrl ?? this.imageUrl,
       synonyms: synonyms ?? this.synonyms,
       level: level ?? this.level,
+      partOfSpeech: partOfSpeech ?? this.partOfSpeech,
+      tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+}
+
+/// Constants cho Part of Speech
+class PartOfSpeech {
+  static const String noun = 'noun';
+  static const String verb = 'verb';
+  static const String adjective = 'adjective';
+  static const String adverb = 'adverb';
+  static const String pronoun = 'pronoun';
+  static const String preposition = 'preposition';
+  static const String conjunction = 'conjunction';
+  static const String interjection = 'interjection';
+
+  static const List<String> all = [
+    noun,
+    verb,
+    adjective,
+    adverb,
+    pronoun,
+    preposition,
+    conjunction,
+    interjection,
+  ];
+
+  static String getLabel(String value) {
+    switch (value) {
+      case noun:
+        return 'Noun (Danh từ)';
+      case verb:
+        return 'Verb (Động từ)';
+      case adjective:
+        return 'Adjective (Tính từ)';
+      case adverb:
+        return 'Adverb (Trạng từ)';
+      case pronoun:
+        return 'Pronoun (Đại từ)';
+      case preposition:
+        return 'Preposition (Giới từ)';
+      case conjunction:
+        return 'Conjunction (Liên từ)';
+      case interjection:
+        return 'Interjection (Thán từ)';
+      default:
+        return value;
+    }
+  }
+
+  static String getIcon(String value) {
+    switch (value) {
+      case noun:
+        return '📦';
+      case verb:
+        return '⚡';
+      case adjective:
+        return '🎨';
+      case adverb:
+        return '🔄';
+      case pronoun:
+        return '👤';
+      case preposition:
+        return '📍';
+      case conjunction:
+        return '🔗';
+      case interjection:
+        return '❗';
+      default:
+        return '📝';
+    }
+  }
+}
+
+/// Constants cho Tags
+class VocabularyTags {
+  static const String idiom = 'idiom';
+  static const String phrasalVerb = 'phrasal-verb';
+  static const String slang = 'slang';
+  static const String business = 'business';
+  static const String academic = 'academic';
+  static const String informal = 'informal';
+  static const String formal = 'formal';
+  static const String common = 'common';
+  static const String rare = 'rare';
+
+  static const List<String> all = [
+    idiom,
+    phrasalVerb,
+    slang,
+    business,
+    academic,
+    informal,
+    formal,
+    common,
+    rare,
+  ];
+
+  static String getLabel(String value) {
+    switch (value) {
+      case idiom:
+        return 'Idiom (Thành ngữ)';
+      case phrasalVerb:
+        return 'Phrasal Verb';
+      case slang:
+        return 'Slang (Tiếng lóng)';
+      case business:
+        return 'Business (Kinh doanh)';
+      case academic:
+        return 'Academic (Học thuật)';
+      case informal:
+        return 'Informal (Thân mật)';
+      case formal:
+        return 'Formal (Trang trọng)';
+      case common:
+        return 'Common (Phổ biến)';
+      case rare:
+        return 'Rare (Ít dùng)';
+      default:
+        return value;
+    }
+  }
+
+  static String getIcon(String value) {
+    switch (value) {
+      case idiom:
+        return '🎭';
+      case phrasalVerb:
+        return '🔀';
+      case slang:
+        return '😎';
+      case business:
+        return '💼';
+      case academic:
+        return '🎓';
+      case informal:
+        return '💬';
+      case formal:
+        return '👔';
+      case common:
+        return '⭐';
+      case rare:
+        return '💎';
+      default:
+        return '🏷️';
+    }
   }
 }

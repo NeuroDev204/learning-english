@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:learn_english/features/topic/models/vocabulary.dart';
 
-/// Service quản lý CRUD cho Vocabulary
+/// Service quản lý CRUD cho Vocabulary - UPDATED with Filters
 class VocabularyService {
   final CollectionReference _vocabRef = FirebaseFirestore.instance.collection(
     'vocabularies',
@@ -9,7 +9,6 @@ class VocabularyService {
 
   // ==================== CREATE ====================
 
-  /// Thêm từ vựng mới vào topic
   Future<String> createVocabulary(Vocabulary vocab) async {
     try {
       final docRef = await _vocabRef.add(vocab.toMap());
@@ -21,7 +20,6 @@ class VocabularyService {
 
   // ==================== READ ====================
 
-  /// Lấy tất cả từ vựng của 1 topic (Stream real-time)
   Stream<List<Vocabulary>> getVocabulariesByTopic(String topicId) {
     return _vocabRef
         .where('topicId', isEqualTo: topicId)
@@ -34,7 +32,6 @@ class VocabularyService {
         });
   }
 
-  /// Lấy 1 từ vựng theo ID
   Future<Vocabulary?> getVocabularyById(String vocabId) async {
     try {
       final doc = await _vocabRef.doc(vocabId).get();
@@ -45,7 +42,55 @@ class VocabularyService {
     }
   }
 
-  /// Tìm kiếm từ vựng theo keyword trong topic
+  // ✅ NEW: Filter by multiple criteria
+  Stream<List<Vocabulary>> getFilteredVocabularies({
+    required String topicId,
+    String? level,
+    String? partOfSpeech,
+    List<String>? tags,
+    String? searchQuery,
+  }) {
+    return _vocabRef.where('topicId', isEqualTo: topicId).snapshots().map((
+      snapshot,
+    ) {
+      var vocabs = snapshot.docs
+          .map((doc) => Vocabulary.fromFirestore(doc))
+          .toList();
+
+      // Filter by level
+      if (level != null && level.isNotEmpty) {
+        vocabs = vocabs.where((v) => v.level == level).toList();
+      }
+
+      // Filter by part of speech
+      if (partOfSpeech != null && partOfSpeech.isNotEmpty) {
+        vocabs = vocabs.where((v) => v.partOfSpeech == partOfSpeech).toList();
+      }
+
+      // Filter by tags (contains any of the tags)
+      if (tags != null && tags.isNotEmpty) {
+        vocabs = vocabs.where((v) {
+          return v.tags.any((tag) => tags.contains(tag));
+        }).toList();
+      }
+
+      // Filter by search query
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        final query = searchQuery.toLowerCase();
+        vocabs = vocabs.where((v) {
+          return v.word.toLowerCase().contains(query) ||
+              v.meaning.toLowerCase().contains(query) ||
+              v.example.toLowerCase().contains(query);
+        }).toList();
+      }
+
+      // Sort by word
+      vocabs.sort((a, b) => a.word.compareTo(b.word));
+
+      return vocabs;
+    });
+  }
+
   Stream<List<Vocabulary>> searchVocabularies(String topicId, String keyword) {
     return _vocabRef.where('topicId', isEqualTo: topicId).snapshots().map((
       snapshot,
@@ -54,16 +99,14 @@ class VocabularyService {
           .map((doc) => Vocabulary.fromFirestore(doc))
           .toList();
 
-      // Filter locally (Firestore không hỗ trợ search text tốt)
+      final query = keyword.toLowerCase();
       return allVocabs.where((vocab) {
-        final query = keyword.toLowerCase();
         return vocab.word.toLowerCase().contains(query) ||
             vocab.meaning.toLowerCase().contains(query);
       }).toList();
     });
   }
 
-  /// Đếm số từ vựng trong topic
   Future<int> countVocabulariesInTopic(String topicId) async {
     try {
       final snapshot = await _vocabRef
@@ -77,7 +120,6 @@ class VocabularyService {
 
   // ==================== UPDATE ====================
 
-  /// Cập nhật từ vựng
   Future<void> updateVocabulary(String vocabId, Vocabulary vocab) async {
     try {
       final updatedVocab = vocab.copyWith(updatedAt: DateTime.now());
@@ -88,8 +130,6 @@ class VocabularyService {
   }
 
   // ==================== DELETE ====================
-
-  /// Xóa 1 từ vựng
   Future<void> deleteVocabulary(String vocabId) async {
     try {
       await _vocabRef.doc(vocabId).delete();
@@ -98,7 +138,6 @@ class VocabularyService {
     }
   }
 
-  /// Xóa tất cả từ vựng trong topic (khi xóa topic)
   Future<void> deleteAllVocabulariesInTopic(String topicId) async {
     try {
       final snapshot = await _vocabRef
@@ -117,7 +156,6 @@ class VocabularyService {
 
   // ==================== BATCH OPERATIONS ====================
 
-  /// Thêm nhiều từ vựng cùng lúc
   Future<void> createMultipleVocabularies(List<Vocabulary> vocabs) async {
     try {
       final batch = FirebaseFirestore.instance.batch();
@@ -133,7 +171,6 @@ class VocabularyService {
 
   // ==================== STATISTICS ====================
 
-  /// Lấy thống kê từ vựng theo level
   Future<Map<String, int>> getVocabularyStatsByLevel(String topicId) async {
     try {
       final snapshot = await _vocabRef
@@ -157,9 +194,51 @@ class VocabularyService {
     }
   }
 
-  /// Lấy tất cả từ vựng (để hiển thị ở home, sắp xếp theo ngày tạo)
+  // ✅ NEW: Stats by part of speech
+  Future<Map<String, int>> getStatsByPartOfSpeech(String topicId) async {
+    try {
+      final snapshot = await _vocabRef
+          .where('topicId', isEqualTo: topicId)
+          .get();
+
+      final stats = <String, int>{};
+
+      for (var doc in snapshot.docs) {
+        final vocab = Vocabulary.fromFirestore(doc);
+        if (vocab.partOfSpeech != null) {
+          stats[vocab.partOfSpeech!] = (stats[vocab.partOfSpeech!] ?? 0) + 1;
+        }
+      }
+
+      return stats;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  // ✅ NEW: Stats by tags
+  Future<Map<String, int>> getStatsByTags(String topicId) async {
+    try {
+      final snapshot = await _vocabRef
+          .where('topicId', isEqualTo: topicId)
+          .get();
+
+      final stats = <String, int>{};
+
+      for (var doc in snapshot.docs) {
+        final vocab = Vocabulary.fromFirestore(doc);
+        for (var tag in vocab.tags) {
+          stats[tag] = (stats[tag] ?? 0) + 1;
+        }
+      }
+
+      return stats;
+    } catch (e) {
+      return {};
+    }
+  }
+
   Stream<List<Vocabulary>> getAllVocabularies() {
-    // NOTE: Có thể thêm .limit(20) để giới hạn số lượng từ vựng ở home
     return _vocabRef.orderBy('createdAt', descending: true).snapshots().map((
       snapshot,
     ) {
