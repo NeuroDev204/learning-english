@@ -7,6 +7,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 import 'features/auth/auth_setup.dart';
 import 'features/auth/services/admin_initialization_service.dart';
+import 'features/exam/providers/exam_provider.dart';
+import 'features/exam/providers/exam_timer_provider.dart';
 import 'screens/auth_wrapper.dart';
 import 'core/theme/app_theme.dart';
 
@@ -47,6 +49,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AuthSetup.createUserProfileService(),
         ),
+        // Exam feature providers
+        ChangeNotifierProvider(create: (_) => ExamProvider()),
+        ChangeNotifierProvider(create: (_) => ExamTimerProvider()),
       ],
       child: MaterialApp(
         title: 'Learn English',
