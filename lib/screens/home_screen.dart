@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learn_english/features/auth/domain/entities/user_entity.dart';
 import 'package:learn_english/features/topic/screens/topic_list_screen.dart';
+import 'package:learn_english/features/exam/views/import_file_page.dart';
 import 'package:provider/provider.dart';
 import '../features/auth/services/auth_service.dart';
 import '../core/theme/app_theme.dart';
@@ -636,89 +637,280 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildStudentQuickActionsSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
+      child: Column(
         children: [
-          // Card 1: Browse topics
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                // User sẽ vào TopicListScreen ở chế độ read-only
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TopicListScreen()),
-                );
-              },
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Icon(Icons.category_outlined, size: 26),
-                      SizedBox(height: 8),
-                      Text(
-                        'Browse topics',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+          // Row 1: Browse topics & Review words
+          Row(
+            children: [
+              // Card 1: Browse topics
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    // User sẽ vào TopicListScreen ở chế độ read-only
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TopicListScreen(),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'View all vocabulary\nby topics',
-                        style: TextStyle(fontSize: 12),
+                    );
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Icon(Icons.category_outlined, size: 26),
+                          SizedBox(height: 8),
+                          Text(
+                            'Browse topics',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'View all vocabulary\nby topics',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // Card 2: Review words
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    // Tạm thời cuộn xuống My Vocabulary
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Icon(Icons.menu_book_outlined, size: 26),
+                          SizedBox(height: 8),
+                          Text(
+                            'Review words',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Check your saved\nvocabulary',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Row 2: Premium Exam Creation Card
+          GestureDetector(
+            onTap: () {
+              // Navigate đến trang import file để tạo đề thi
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ImportFilePage()),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [const Color(0xFF667eea), const Color(0xFF764ba2)],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Background pattern
+                  Positioned(
+                    right: -20,
+                    top: -20,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 30,
+                    bottom: -30,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                        // Icon container with glow effect
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.auto_awesome,
+                            size: 28,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Text content
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text(
+                                    'AI Exam Generator',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                      color: Colors.white,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Text(
+                                      'NEW',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Import PDF/Word → Auto-generate quiz',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  height: 1.3,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  _buildFeatureChip(
+                                    Icons.picture_as_pdf,
+                                    'PDF',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _buildFeatureChip(Icons.description, 'Word'),
+                                  const SizedBox(width: 8),
+                                  _buildFeatureChip(Icons.quiz, 'Quiz'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Arrow
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          const SizedBox(width: 12),
-
-          // Card 2: Review words (gợi ý, có thể làm quiz sau)
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                // Tạm thời cuộn xuống My Vocabulary
-                // Sau này bạn có thể đổi thành màn Quiz riêng
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   const SnackBar(content: Text('Coming soon ✨')),
-                // );
-              },
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Icon(Icons.menu_book_outlined, size: 26),
-                      SizedBox(height: 8),
-                      Text(
-                        'Review words',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Check your saved\nvocabulary',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+  // Helper method for feature chips in exam card
+  Widget _buildFeatureChip(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: Colors.white),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -772,7 +964,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: Text(
                   word.word,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 subtitle: Text(word.meaning),
                 trailing: Text(
