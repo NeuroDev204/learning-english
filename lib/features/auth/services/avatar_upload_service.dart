@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -6,14 +5,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Avatar Upload Service
 /// Handles image picking and uploading to Cloudinary
+/// Works on both mobile/desktop and web platforms
 class AvatarUploadService {
   late final CloudinaryPublic _cloudinary;
   final ImagePicker _imagePicker;
 
-  AvatarUploadService({
-    CloudinaryPublic? cloudinary,
-    ImagePicker? imagePicker,
-  }) : _imagePicker = imagePicker ?? ImagePicker() {
+  AvatarUploadService({CloudinaryPublic? cloudinary, ImagePicker? imagePicker})
+    : _imagePicker = imagePicker ?? ImagePicker() {
     if (cloudinary != null) {
       _cloudinary = cloudinary;
     } else {
@@ -24,16 +22,16 @@ class AvatarUploadService {
         throw Exception('CLOUDINARY_CLOUD_NAME not found in .env file');
       }
 
-      _cloudinary = CloudinaryPublic(
-        cloudName,
-        'avatars',
-        cache: false,
-      );
+      _cloudinary = CloudinaryPublic(cloudName, 'avatars', cache: false);
     }
   }
 
+  /// Check if camera is available (not available on web desktop)
+  bool get isCameraAvailable => !kIsWeb;
+
   /// Pick image from gallery
-  Future<File?> pickImageFromGallery() async {
+  /// Returns XFile which works on all platforms
+  Future<XFile?> pickImageFromGallery() async {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: ImageSource.gallery,
@@ -41,18 +39,20 @@ class AvatarUploadService {
         maxHeight: 800,
         imageQuality: 85,
       );
-
-      if (pickedFile == null) return null;
-
-      return File(pickedFile.path);
+      return pickedFile;
     } catch (e) {
       debugPrint('Error picking image from gallery: $e');
       throw Exception('Failed to pick image from gallery: $e');
     }
   }
 
-  /// Pick image from camera
-  Future<File?> pickImageFromCamera() async {
+  /// Pick image from camera (not supported on web)
+  /// Returns XFile which works on mobile/desktop platforms
+  Future<XFile?> pickImageFromCamera() async {
+    if (kIsWeb) {
+      throw Exception('Camera is not supported on web platform');
+    }
+
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: ImageSource.camera,
@@ -60,10 +60,7 @@ class AvatarUploadService {
         maxHeight: 800,
         imageQuality: 85,
       );
-
-      if (pickedFile == null) return null;
-
-      return File(pickedFile.path);
+      return pickedFile;
     } catch (e) {
       debugPrint('Error taking photo from camera: $e');
       throw Exception('Failed to take photo from camera: $e');
@@ -71,10 +68,11 @@ class AvatarUploadService {
   }
 
   /// Upload avatar to Cloudinary
+  /// Works on both web (using bytes) and mobile/desktop (using file path)
   /// Returns the download URL
   Future<String> uploadAvatar({
     required String userId,
-    required File imageFile,
+    required XFile imageFile,
   }) async {
     try {
       debugPrint('Starting upload to Cloudinary...');
@@ -82,15 +80,30 @@ class AvatarUploadService {
       debugPrint('Upload preset: avatars');
       debugPrint('File path: ${imageFile.path}');
 
-      // Upload to Cloudinary with transformation
-      final response = await _cloudinary.uploadFile(
-        CloudinaryFile.fromFile(
-          imageFile.path,
-          resourceType: CloudinaryResourceType.Image,
-          folder: 'avatars/users/$userId',
-          publicId: 'avatar_${DateTime.now().millisecondsSinceEpoch}',
-        ),
-      );
+      CloudinaryResponse response;
+
+      if (kIsWeb) {
+        // Web: Upload from bytes
+        final bytes = await imageFile.readAsBytes();
+        response = await _cloudinary.uploadFile(
+          CloudinaryFile.fromBytesData(
+            bytes,
+            resourceType: CloudinaryResourceType.Image,
+            folder: 'avatars/users/$userId',
+            identifier: 'avatar_${DateTime.now().millisecondsSinceEpoch}',
+          ),
+        );
+      } else {
+        // Mobile/Desktop: Upload from file path
+        response = await _cloudinary.uploadFile(
+          CloudinaryFile.fromFile(
+            imageFile.path,
+            resourceType: CloudinaryResourceType.Image,
+            folder: 'avatars/users/$userId',
+            publicId: 'avatar_${DateTime.now().millisecondsSinceEpoch}',
+          ),
+        );
+      }
 
       debugPrint('Upload successful! URL: ${response.secureUrl}');
       return response.secureUrl;
@@ -109,7 +122,7 @@ class AvatarUploadService {
           'Please verify:\n'
           '- Go to Cloudinary Console → Settings → Upload\n'
           '- Create an "Unsigned" upload preset named "avatars"\n'
-          '- Or use an existing unsigned preset'
+          '- Or use an existing unsigned preset',
         );
       }
 
@@ -130,8 +143,12 @@ class AvatarUploadService {
       if (!uri.host.contains('cloudinary')) return;
 
       debugPrint('Old avatar URL: $avatarUrl');
-      debugPrint('Note: Cloudinary free tier does not support deletion via API');
-      debugPrint('Please delete old images manually from Cloudinary dashboard if needed');
+      debugPrint(
+        'Note: Cloudinary free tier does not support deletion via API',
+      );
+      debugPrint(
+        'Please delete old images manually from Cloudinary dashboard if needed',
+      );
 
       // For paid plans, you would use Cloudinary Admin API here
       // This requires the API secret and is not recommended for client-side code

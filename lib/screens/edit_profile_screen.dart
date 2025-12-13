@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,7 +31,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   bool _isUploadingAvatar = false;
 
   // Avatar
-  File? _selectedImageFile;
+  XFile? _selectedImageFile;
+  Uint8List? _selectedImageBytes; // For web platform
   String? _currentAvatarUrl;
 
   // Learning Aim
@@ -65,8 +67,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Future<void> _loadUserData() async {
     final authService = Provider.of<AuthService>(context, listen: false);
-    final profileService =
-        Provider.of<UserProfileService>(context, listen: false);
+    final profileService = Provider.of<UserProfileService>(
+      context,
+      listen: false,
+    );
     final userId = authService.currentUser?.uid;
 
     if (userId == null) return;
@@ -127,8 +131,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     if (!_formKey.currentState!.validate()) return;
 
     final authService = Provider.of<AuthService>(context, listen: false);
-    final profileService =
-        Provider.of<UserProfileService>(context, listen: false);
+    final profileService = Provider.of<UserProfileService>(
+      context,
+      listen: false,
+    );
     final userId = authService.currentUser?.uid;
 
     if (userId == null) {
@@ -157,7 +163,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         }
 
         // Delete old avatar if exists
-        if (_currentAvatarUrl != null && _currentAvatarUrl!.isNotEmpty && _currentAvatarUrl != newAvatarUrl) {
+        if (_currentAvatarUrl != null &&
+            _currentAvatarUrl!.isNotEmpty &&
+            _currentAvatarUrl != newAvatarUrl) {
           await _avatarUploadService.deleteOldAvatar(_currentAvatarUrl!);
         }
       } catch (e) {
@@ -190,7 +198,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         // Reload user data to sync with Firestore and notify all listeners
         debugPrint('🔄 Reloading user data from Firestore...');
         await authService.loadUserData();
-        debugPrint('✅ User data reloaded! photoUrl: ${authService.currentUserData?.photoUrl}');
+        debugPrint(
+          '✅ User data reloaded! photoUrl: ${authService.currentUserData?.photoUrl}',
+        );
       } else {
         debugPrint('❌ Failed to save profile: ${profileService.errorMessage}');
         _showMessage(
@@ -203,8 +213,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Future<void> _saveSettings() async {
     final authService = Provider.of<AuthService>(context, listen: false);
-    final profileService =
-        Provider.of<UserProfileService>(context, listen: false);
+    final profileService = Provider.of<UserProfileService>(
+      context,
+      listen: false,
+    );
     final userId = authService.currentUser?.uid;
 
     if (userId == null) {
@@ -266,21 +278,29 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         child: Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.photo_library, color: AppTheme.primaryBlue),
+              leading: const Icon(
+                Icons.photo_library,
+                color: AppTheme.primaryBlue,
+              ),
               title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImageFromGallery();
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: AppTheme.primaryBlue),
-              title: const Text('Take a Photo'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImageFromCamera();
-              },
-            ),
+            // Hide camera option on web
+            if (_avatarUploadService.isCameraAvailable)
+              ListTile(
+                leading: const Icon(
+                  Icons.camera_alt,
+                  color: AppTheme.primaryBlue,
+                ),
+                title: const Text('Take a Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromCamera();
+                },
+              ),
             if (_currentAvatarUrl != null || _selectedImageFile != null)
               ListTile(
                 leading: const Icon(Icons.delete, color: AppTheme.errorRed),
@@ -305,8 +325,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     try {
       final imageFile = await _avatarUploadService.pickImageFromGallery();
       if (imageFile != null) {
+        // Read bytes for web display
+        final bytes = await imageFile.readAsBytes();
         setState(() {
           _selectedImageFile = imageFile;
+          _selectedImageBytes = bytes;
         });
       }
     } catch (e) {
@@ -318,8 +341,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     try {
       final imageFile = await _avatarUploadService.pickImageFromCamera();
       if (imageFile != null) {
+        // Read bytes for display
+        final bytes = await imageFile.readAsBytes();
         setState(() {
           _selectedImageFile = imageFile;
+          _selectedImageBytes = bytes;
         });
       }
     } catch (e) {
@@ -330,6 +356,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   void _removeAvatar() {
     setState(() {
       _selectedImageFile = null;
+      _selectedImageBytes = null;
       _currentAvatarUrl = null;
     });
   }
@@ -451,10 +478,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
               controller: _tabController,
-              children: [
-                _buildProfileTab(user),
-                _buildSettingsTab(),
-              ],
+              children: [_buildProfileTab(user), _buildSettingsTab()],
             ),
     );
   }
@@ -484,23 +508,29 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                           color: AppTheme.primaryBlue,
                           width: 4,
                         ),
-                        image: _selectedImageFile != null
+                        image: _selectedImageBytes != null
                             ? DecorationImage(
-                                image: FileImage(_selectedImageFile!),
+                                image: MemoryImage(_selectedImageBytes!),
                                 fit: BoxFit.cover,
                               )
-                            : _currentAvatarUrl != null && _currentAvatarUrl!.isNotEmpty
-                                ? DecorationImage(
-                                    image: NetworkImage(_currentAvatarUrl!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
+                            : _currentAvatarUrl != null &&
+                                  _currentAvatarUrl!.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(_currentAvatarUrl!),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
-                      child: (_selectedImageFile == null &&
-                             (_currentAvatarUrl == null || _currentAvatarUrl!.isEmpty))
+                      child:
+                          (_selectedImageFile == null &&
+                              (_currentAvatarUrl == null ||
+                                  _currentAvatarUrl!.isEmpty))
                           ? Center(
                               child: Text(
-                                user?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                                user?.displayName
+                                        ?.substring(0, 1)
+                                        .toUpperCase() ??
+                                    'U',
                                 style: const TextStyle(
                                   fontSize: 48,
                                   fontWeight: FontWeight.bold,
@@ -645,10 +675,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             const SizedBox(height: 12),
             const Text(
               'What\'s your main goal for learning English?',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppTheme.textGrey,
-              ),
+              style: TextStyle(fontSize: 13, color: AppTheme.textGrey),
             ),
             const SizedBox(height: 16),
 
@@ -702,8 +729,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text('Save Changes'),
@@ -891,10 +919,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 ),
                 const Text(
                   'Slide to set your daily learning goal',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textGrey,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textGrey),
                 ),
               ],
             ),
@@ -931,8 +956,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Text('Save Settings'),
@@ -1011,10 +1037,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         ),
         child: Row(
           children: [
-            Text(
-              flag,
-              style: const TextStyle(fontSize: 28),
-            ),
+            Text(flag, style: const TextStyle(fontSize: 28)),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
@@ -1027,10 +1050,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               ),
             ),
             if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: AppTheme.primaryBlue,
-              ),
+              const Icon(Icons.check_circle, color: AppTheme.primaryBlue),
           ],
         ),
       ),
@@ -1085,8 +1105,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     title,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? AppTheme.primaryBlue : AppTheme.textDark,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? AppTheme.primaryBlue
+                          : AppTheme.textDark,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1101,10 +1125,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               ),
             ),
             if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: AppTheme.primaryBlue,
-              ),
+              const Icon(Icons.check_circle, color: AppTheme.primaryBlue),
           ],
         ),
       ),

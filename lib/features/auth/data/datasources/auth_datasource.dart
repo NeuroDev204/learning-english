@@ -8,8 +8,19 @@ import '../models/user_model.dart';
 class AuthDatasource {
   final FirebaseAuth _firebaseAuth;
 
+  // Singleton GoogleSignIn instance with web client ID
+  // Get this from Google Cloud Console -> APIs & Services -> Credentials -> OAuth 2.0 Client IDs
+  static final GoogleSignIn _googleSignIn = GoogleSignIn(
+    // Web client ID from Firebase Console -> Project Settings -> Your apps -> Web app -> Web client ID
+    // Or from Google Cloud Console -> APIs & Services -> Credentials
+    clientId: kIsWeb
+        ? '503078089220-19bmiftb698brr0f13ji83qsrfp7merm.apps.googleusercontent.com'
+        : null,
+    scopes: ['email', 'profile'],
+  );
+
   AuthDatasource({FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+    : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
   // ==================== GETTERS ====================
 
@@ -97,9 +108,8 @@ class AuthDatasource {
     try {
       debugPrint('🔐 Datasource: Initiating Google Sign-In flow');
 
-      // Trigger the Google Sign-In flow
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      // Trigger the Google Sign-In flow using singleton instance
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
         // User canceled the sign-in
@@ -110,7 +120,8 @@ class AuthDatasource {
       debugPrint('🔐 Datasource: Google user selected: ${googleUser.email}');
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       debugPrint('🔐 Datasource: Got authentication tokens');
 
       // Create a new credential
@@ -121,11 +132,17 @@ class AuthDatasource {
       debugPrint('🔐 Datasource: Created Firebase credential');
 
       // Sign in to Firebase with the Google credential
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
-      debugPrint('🔐 Datasource: Firebase sign-in successful: ${userCredential.user?.uid}');
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
+      debugPrint(
+        '🔐 Datasource: Firebase sign-in successful: ${userCredential.user?.uid}',
+      );
 
       if (userCredential.user != null) {
-        final userEntity = UserModel.fromFirebaseUser(userCredential.user!).toEntity();
+        final userEntity = UserModel.fromFirebaseUser(
+          userCredential.user!,
+        ).toEntity();
         debugPrint('🔐 Datasource: Returning user entity: ${userEntity.id}');
         return userEntity;
       }
@@ -133,7 +150,9 @@ class AuthDatasource {
       debugPrint('🔐 Datasource: userCredential.user is null!');
       return null;
     } on FirebaseAuthException catch (e) {
-      debugPrint('🔐 Datasource: FirebaseAuthException: ${e.code} - ${e.message}');
+      debugPrint(
+        '🔐 Datasource: FirebaseAuthException: ${e.code} - ${e.message}',
+      );
       throw _handleAuthException(e);
     } catch (e) {
       debugPrint('🔐 Datasource: Exception: $e');
@@ -146,10 +165,10 @@ class AuthDatasource {
   /// Sign out
   Future<void> signOut() async {
     try {
-      // Sign out from Google if signed in with Google
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      if (await googleSignIn.isSignedIn()) {
-        await googleSignIn.signOut();
+      // Sign out from Google if signed in with Google (use singleton)
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.disconnect(); // Disconnect to fully logout
+        await _googleSignIn.signOut();
       }
       // Sign out from Firebase
       await _firebaseAuth.signOut();
