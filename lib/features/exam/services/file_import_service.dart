@@ -1,9 +1,11 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart' as xml;
+
+// Conditional import for dart:io (not available on web)
+import 'file_import_io.dart' if (dart.library.html) 'file_import_web.dart';
 
 /// Service để import và trích xuất text từ file PDF/Word
 class FileImportService {
@@ -149,12 +151,9 @@ class FileImportService {
       return file.bytes;
     }
 
-    // Nếu có path (mobile/desktop)
+    // Nếu có path (mobile/desktop) - use helper from conditional import
     if (file.path != null) {
-      final fileObj = File(file.path!);
-      if (await fileObj.exists()) {
-        return await fileObj.readAsBytes();
-      }
+      return await readFileBytesFromPath(file.path!);
     }
 
     return null;

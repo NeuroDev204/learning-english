@@ -5,7 +5,12 @@ import 'dart:convert';
 /// Service for managing PIN authentication
 /// Stores PIN securely and handles verification
 class PinSecurityService {
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
+    webOptions: WebOptions(
+      dbName: 'learn_english_secure',
+      publicKey: 'learn_english_public_key',
+    ),
+  );
 
   // Storage keys
   static const String _pinKey = 'user_pin_hash';
@@ -34,10 +39,7 @@ class PinSecurityService {
 
   /// Set up a new PIN
   /// Returns true if successful
-  Future<bool> setupPin({
-    required String pin,
-    required int pinLength,
-  }) async {
+  Future<bool> setupPin({required String pin, required int pinLength}) async {
     try {
       // Validate PIN
       if (!_isValidPin(pin, pinLength)) {
@@ -50,7 +52,10 @@ class PinSecurityService {
       // Store PIN hash, enabled status, and length
       await _secureStorage.write(key: _pinKey, value: hashedPin);
       await _secureStorage.write(key: _pinEnabledKey, value: 'true');
-      await _secureStorage.write(key: _pinLengthKey, value: pinLength.toString());
+      await _secureStorage.write(
+        key: _pinLengthKey,
+        value: pinLength.toString(),
+      );
 
       return true;
     } catch (e) {
