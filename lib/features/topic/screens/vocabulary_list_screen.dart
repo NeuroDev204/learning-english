@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:learn_english/core/theme/app_theme.dart';
 import 'package:learn_english/features/auth/services/auth_service.dart';
+import 'package:learn_english/features/quiz/screens/quiz_config_screen.dart';
 import '../models/topic.dart';
 import '../models/vocabulary.dart';
 import '../services/vocabulary_service.dart';
@@ -73,7 +74,7 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
             ],
           ),
 
-          // FAB chỉ hiện với admin
+          // FAB chỉ hiện với admin (thêm từ mới)
           floatingActionButton: isAdmin
               ? FloatingActionButton.extended(
                   onPressed: () {
@@ -122,7 +123,7 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
                 ),
               ),
 
-              // Vocabulary list
+              // Vocabulary list + Nút Quiz
               Expanded(
                 child: StreamBuilder<List<Vocabulary>>(
                   stream: _searchQuery.isEmpty
@@ -142,13 +143,55 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
 
                     final vocabularies = snapshot.data ?? [];
 
+                    // Nếu chưa có từ vựng nào
                     if (vocabularies.isEmpty) {
                       return _buildEmptyState(isAdmin);
                     }
 
-                    return _isGridView
-                        ? _buildGridView(vocabularies, isAdmin)
-                        : _buildListView(vocabularies, isAdmin);
+                    return Column(
+                      children: [
+                        // Danh sách từ vựng (List hoặc Grid)
+                        Expanded(
+                          child: _isGridView
+                              ? _buildGridView(vocabularies, isAdmin)
+                              : _buildListView(vocabularies, isAdmin),
+                        ),
+
+                        // ===== NÚT CHUYỂN ĐẾN QUIZ / FLASHCARD =====
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => QuizConfigScreen(topic: widget.topic),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.quiz_outlined, size: 28),
+                            label: const Text(
+                              'Làm bài Quiz / Flashcard',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              minimumSize: const Size(double.infinity, 64),
+                              elevation: 8,
+                              shadowColor: AppTheme.primaryBlue.withOpacity(0.3),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
                   },
                 ),
               ),
