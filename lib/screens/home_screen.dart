@@ -8,6 +8,7 @@ import '../core/theme/app_theme.dart';
 import '../features/topic/models/vocabulary.dart';
 import '../features/topic/services/vocabulary_service.dart';
 import 'edit_profile_screen.dart';
+import '../features/quiz/screens/quiz_history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -332,6 +333,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => const EditProfileScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildDrawerItem(
+                      icon: Icons.history_rounded,
+                      title: 'Quiz History',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const QuizHistoryScreen(),
                           ),
                         );
                       },

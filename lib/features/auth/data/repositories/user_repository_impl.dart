@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_datasource.dart';
@@ -6,6 +7,7 @@ import '../datasources/user_datasource.dart';
 /// Kết nối giữa Domain Layer và Data Layer
 class UserRepositoryImpl implements UserRepository {
   final UserDatasource _userDatasource;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Thêm instance Firestore
 
   UserRepositoryImpl({
     required UserDatasource userDatasource,
@@ -71,5 +73,22 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Stream<UserEntity?> watchUserData(String userId) {
     return _userDatasource.watchUserData(userId);
+  }
+
+  /// Đảm bảo document user tồn tại trong Firestore
+  /// Dùng khi user đăng nhập lần đầu để khởi tạo các field mặc định như XP, streak...
+  @override
+  Future<void> ensureUserDocumentExists(String userId) async {
+    final userRef = _firestore.collection('users').doc(userId);
+    final doc = await userRef.get();
+
+    if (!doc.exists) {
+      await userRef.set({
+        'totalXP': 0,
+        'currentStreak': 0,
+        'lastActiveDate': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
   }
 }

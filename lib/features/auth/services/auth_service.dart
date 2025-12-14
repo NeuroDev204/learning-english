@@ -4,9 +4,6 @@ import '../domain/entities/user_entity.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../domain/repositories/user_repository.dart';
 
-/// Comprehensive Auth Service
-/// Combines Authentication and User Data Management
-/// Use this service in your UI layer with Provider
 class AuthService extends ChangeNotifier {
   final AuthRepository _authRepository;
   final UserRepository _userRepository;
@@ -17,8 +14,6 @@ class AuthService extends ChangeNotifier {
   })  : _authRepository = authRepository,
         _userRepository = userRepository;
 
-  // ==================== STATE MANAGEMENT ====================
-
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -28,14 +23,9 @@ class AuthService extends ChangeNotifier {
   UserEntity? _currentUserData;
   UserEntity? get currentUserData => _currentUserData;
 
-  // ==================== GETTERS ====================
-
   firebase_auth.User? get currentUser => _authRepository.currentUser;
 
-  Stream<firebase_auth.User?> get authStateChanges =>
-      _authRepository.authStateChanges;
-
-  // ==================== PRIVATE HELPERS ====================
+  Stream<firebase_auth.User?> get authStateChanges => _authRepository.authStateChanges;
 
   void _setLoading(bool value) {
     _isLoading = value;
@@ -52,10 +42,15 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ==================== SIGN UP ====================
+  /// Đảm bảo document user tồn tại trong Firestore
+  Future<void> _ensureUserDocument(UserEntity user) async {
+    try {
+      await _userRepository.ensureUserDocumentExists(user.id);
+    } catch (e) {
+      debugPrint('Warning: Could not ensure user document exists: $e');
+    }
+  }
 
-  /// Sign up with email and password
-  /// Also creates user data in Firestore
   Future<UserEntity?> signUp({
     required String email,
     required String password,
@@ -65,7 +60,6 @@ class AuthService extends ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // Sign up with Firebase Auth
       final user = await _authRepository.signUp(
         email: email,
         password: password,
@@ -78,17 +72,17 @@ class AuthService extends ChangeNotifier {
         return null;
       }
 
-      // Save user data to Firestore
+      await _ensureUserDocument(user);
+
       try {
         await _userRepository.saveUserData(user);
         _currentUserData = user;
       } catch (e) {
-        debugPrint('Warning: Could not save user data to Firestore: $e');
-        // Continue anyway, data can be synced later
+        debugPrint('Warning: Could not save full user data: $e');
       }
 
       _setLoading(false);
-      return user;
+      return _currentUserData;
     } catch (e) {
       _setLoading(false);
       _setError(e.toString().replaceAll('Exception: ', ''));
@@ -96,10 +90,6 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // ==================== SIGN IN ====================
-
-  /// Sign in with email and password
-  /// Also loads user data from Firestore
   Future<UserEntity?> signIn({
     required String email,
     required String password,
@@ -108,7 +98,6 @@ class AuthService extends ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // Sign in with Firebase Auth
       final user = await _authRepository.signIn(
         email: email,
         password: password,
@@ -120,12 +109,13 @@ class AuthService extends ChangeNotifier {
         return null;
       }
 
-      // Load user data from Firestore
+      await _ensureUserDocument(user);
+
       try {
         final userData = await _userRepository.getUserData(user.id);
         _currentUserData = userData ?? user;
       } catch (e) {
-        debugPrint('Warning: Could not load user data from Firestore: $e');
+        debugPrint('Warning: Could not load user data: $e');
         _currentUserData = user;
       }
 
@@ -138,61 +128,42 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // ==================== SIGN IN WITH GOOGLE ====================
-
-  /// Sign in with Google
-  /// Also creates/loads user data from Firestore
   Future<UserEntity?> signInWithGoogle() async {
     try {
-      debugPrint('📱 AuthService: Starting Google Sign-In');
       _setLoading(true);
       _setError(null);
 
-      // Sign in with Google
       final user = await _authRepository.signInWithGoogle();
-      debugPrint('📱 AuthService: Repository returned user: ${user?.id}');
 
       if (user == null) {
-        debugPrint('📱 AuthService: User is null, sign in canceled');
         _setError('Google sign in canceled');
         _setLoading(false);
         return null;
       }
 
-      // Check if user data exists in Firestore
-      try {
-        debugPrint('📱 AuthService: Loading user data from Firestore');
-        var userData = await _userRepository.getUserData(user.id);
+      await _ensureUserDocument(user);
 
-        // If user data doesn't exist, create it
+      try {
+        var userData = await _userRepository.getUserData(user.id);
         if (userData == null) {
-          debugPrint('📱 AuthService: User data not found, creating new');
           await _userRepository.saveUserData(user);
           userData = user;
-        } else {
-          debugPrint('📱 AuthService: User data loaded from Firestore');
         }
-
         _currentUserData = userData;
       } catch (e) {
-        debugPrint('📱 AuthService: Warning - Could not load/save user data from Firestore: $e');
+        debugPrint('Warning: Could not handle user data: $e');
         _currentUserData = user;
       }
 
       _setLoading(false);
-      debugPrint('📱 AuthService: Sign-In complete, returning user: ${_currentUserData?.id}');
       return _currentUserData;
     } catch (e) {
-      debugPrint('📱 AuthService: Exception during sign in: $e');
       _setLoading(false);
       _setError(e.toString().replaceAll('Exception: ', ''));
       return null;
     }
   }
 
-  // ==================== SIGN OUT ====================
-
-  /// Sign out
   Future<void> signOut() async {
     try {
       _setLoading(true);

@@ -36,4 +36,6 @@ abstract class UserRepository {
 
   /// Stream user data changes
   Stream<UserEntity?> watchUserData(String userId);
+
+  Future<void> ensureUserDocumentExists(String userId);
 }
