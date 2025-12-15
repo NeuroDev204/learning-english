@@ -32,29 +32,67 @@ class QuizSessionService {
 
       int currentXP = 0;
       int currentStreak = 0;
+      int longestStreak = 0;
       DateTime? lastActive;
 
       if (userSnapshot.exists) {
         final data = userSnapshot.data()!;
         currentXP = (data['totalXP'] as int?) ?? 0;
         currentStreak = (data['currentStreak'] as int?) ?? 0;
+        longestStreak = (data['longestStreak'] as int?) ?? 0;
         final lastTs = data['lastActiveDate'] as Timestamp?;
         lastActive = lastTs?.toDate();
       }
 
       final today = DateTime.now();
-      final isNewDay = lastActive == null ||
-          today.year != lastActive.year ||
-          today.month != lastActive.month ||
-          today.day != lastActive.day;
+      final todayStart = DateTime(today.year, today.month, today.day);
+      
+      // Kiểm tra xem có phải ngày mới không
+      bool isNewDay = false;
+      if (lastActive == null) {
+        // Lần đầu làm quiz
+        isNewDay = true;
+      } else {
+        final lastActiveStart = DateTime(
+          lastActive.year,
+          lastActive.month,
+          lastActive.day,
+        );
+        
+        // Nếu là ngày mới
+        if (todayStart.isAfter(lastActiveStart)) {
+          final daysDiff = todayStart.difference(lastActiveStart).inDays;
+          
+          if (daysDiff == 1) {
+            // Ngày liên tiếp - tăng streak
+            isNewDay = true;
+          } else if (daysDiff > 1) {
+            // Bỏ lỡ ngày - reset streak về 1 (ngày hôm nay)
+            currentStreak = 0;
+            isNewDay = true;
+          }
+          // Nếu daysDiff == 0 thì đã làm quiz trong ngày hôm nay rồi
+        }
+      }
+
+      // Cập nhật streak
+      final newStreak = isNewDay ? currentStreak + 1 : currentStreak;
+      
+      // Cập nhật longestStreak nếu cần
+      final newLongestStreak = newStreak > longestStreak 
+          ? newStreak 
+          : longestStreak;
 
       await userRef.set({
         'totalXP': currentXP + session.xpEarned,
-        'currentStreak': isNewDay ? currentStreak + 1 : currentStreak,
+        'currentStreak': newStreak,
+        'longestStreak': newLongestStreak,
         'lastActiveDate': Timestamp.fromDate(today),
       }, SetOptions(merge: true));
 
       debugPrint('Đã lưu kết quả quiz thành công cho user: ${user.uid}');
+      debugPrint('XP: ${currentXP} + ${session.xpEarned} = ${currentXP + session.xpEarned}');
+      debugPrint('Streak: $currentStreak -> $newStreak');
     } catch (e) {
       debugPrint('Lỗi khi lưu kết quả quiz: $e');
       rethrow;

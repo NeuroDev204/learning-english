@@ -1,0 +1,243 @@
+================================================================================
+                    HỆ THỐNG TÍNH ĐIỂM KINH NGHIỆM (XP)
+                    Learning English App
+================================================================================
+
+I. CÁCH TÍNH XP CHO MỖI QUIZ SESSION
+------------------------------------
+
+Công thức tính XP được định nghĩa trong: lib/features/quiz/services/quiz_service.dart
+
+XP = Base XP + Perfect Bonus + Fast Bonus
+
+1. BASE XP (Điểm cơ bản):
+   - Công thức: correctCount × 10
+   - Mỗi câu trả lời đúng = 10 XP
+   - Ví dụ: 8 câu đúng = 80 XP
+
+2. PERFECT BONUS (Thưởng hoàn hảo):
+   - Điều kiện: scorePercentage == 100% (tất cả câu đều đúng)
+   - Giá trị: +50 XP
+   - Ví dụ: 10/10 câu đúng = +50 XP bonus
+
+3. FAST BONUS (Thưởng tốc độ):
+   - Điều kiện: durationSeconds < (totalQuestions × 10)
+   - Giá trị: +30 XP
+   - Ví dụ: 
+     * Quiz 10 câu: phải hoàn thành trong < 100 giây để nhận bonus
+     * Quiz 5 câu: phải hoàn thành trong < 50 giây để nhận bonus
+
+VÍ DỤ TÍNH XP:
+--------------
+Quiz 10 câu:
+- Đúng 8 câu, thời gian 95 giây
+  → Base: 8 × 10 = 80 XP
+  → Perfect: 0 XP (không đạt 100%)
+  → Fast: 30 XP (95 < 100)
+  → TỔNG: 110 XP
+
+- Đúng 10 câu, thời gian 120 giây
+  → Base: 10 × 10 = 100 XP
+  → Perfect: 50 XP (100% đúng)
+  → Fast: 0 XP (120 > 100)
+  → TỔNG: 150 XP
+
+- Đúng 10 câu, thời gian 80 giây
+  → Base: 10 × 10 = 100 XP
+  → Perfect: 50 XP (100% đúng)
+  → Fast: 30 XP (80 < 100)
+  → TỔNG: 180 XP
+
+
+II. TỔNG XP (TOTAL XP)
+----------------------
+
+Tổng XP được lưu trong Firestore collection 'users' → field 'totalXP'
+
+Cách tính:
+- Mỗi khi hoàn thành quiz, XP từ quiz session được cộng vào totalXP
+- Lưu tại: lib/features/quiz/services/quiz_session_service.dart
+- Công thức: totalXP = totalXP (cũ) + xpEarned (mới)
+
+Lưu ý:
+- Total XP là tổng tích lũy từ tất cả các quiz sessions
+- Không bị reset theo thời gian
+- Được sử dụng trong Leaderboard (All-time ranking)
+
+
+III. XP THEO THỜI GIAN (WEEKLY XP, MONTHLY XP)
+-----------------------------------------------
+
+1. WEEKLY XP (XP tuần này):
+   - Tính từ: Thứ 2 đầu tuần (weekStart)
+   - Công thức: Tổng xpEarned của tất cả quiz sessions trong tuần
+   - Lưu tại: lib/features/leaderboard/services/leaderboard_service.dart
+   - Được tính động khi lấy leaderboard
+
+2. MONTHLY XP (XP tháng này):
+   - Tính từ: Ngày 1 của tháng hiện tại (monthStart)
+   - Công thức: Tổng xpEarned của tất cả quiz sessions trong tháng
+   - Lưu tại: lib/features/leaderboard/services/leaderboard_service.dart
+   - Được tính động khi lấy leaderboard
+
+Lưu ý:
+- Weekly XP và Monthly XP không được lưu trong database
+- Được tính lại mỗi khi truy vấn leaderboard
+- Dựa trên field 'playedAt' của quiz sessions
+
+
+IV. STREAK (CHUỖI NGÀY HỌC)
+---------------------------
+
+1. CURRENT STREAK (Chuỗi ngày học hiện tại):
+   - Được lưu trong: Firestore 'users' → field 'currentStreak'
+   - Cách tính:
+     * Mỗi ngày làm quiz đầu tiên: currentStreak + 1
+     * Nếu đã làm quiz trong ngày: giữ nguyên
+     * Reset về 0 nếu bỏ lỡ 1 ngày (logic này cần implement thêm)
+   - Lưu tại: lib/features/quiz/services/quiz_session_service.dart
+
+2. LONGEST STREAK (Chuỗi ngày học dài nhất):
+   - Được lưu trong: Firestore 'users' → field 'longestStreak'
+   - Cần implement logic để cập nhật khi currentStreak > longestStreak
+
+3. WEEKLY STREAK DAYS (Số ngày học trong tuần):
+   - Tính số ngày khác nhau có quiz sessions trong tuần
+   - Dựa trên Set<String> dayKey = '${year}-${month}-${day}'
+   - Được tính động trong leaderboard_service.dart
+
+4. MONTHLY STREAK DAYS (Số ngày học trong tháng):
+   - Tính số ngày khác nhau có quiz sessions trong tháng
+   - Tương tự weekly streak days
+   - Được tính động trong leaderboard_service.dart
+
+
+V. SỐ TỪ HỌC (WORDS LEARNED)
+-----------------------------
+
+Được tính trong Dashboard: lib/features/dashboard/services/dashboard_service.dart
+
+Cách tính:
+- Số từ học = Tổng số câu đã trả lời (answeredCount)
+- answeredCount = số QuizAnswer có userAnswer.isNotEmpty
+- Không phân biệt đúng/sai, chỉ cần đã trả lời
+
+1. WORDS LEARNED TODAY:
+   - Tổng answeredCount của các quiz sessions trong ngày hôm nay
+
+2. WORDS LEARNED THIS WEEK:
+   - Tổng answeredCount của các quiz sessions từ thứ 2 đầu tuần
+
+3. WORDS LEARNED THIS MONTH:
+   - Tổng answeredCount của các quiz sessions từ ngày 1 tháng này
+
+
+VI. ĐIỂM TRUNG BÌNH (AVERAGE SCORE)
+-----------------------------------
+
+Được tính trong Leaderboard: lib/features/leaderboard/services/leaderboard_service.dart
+
+Công thức:
+- averageScore = (Tổng scorePercentage của tất cả sessions) / completedQuizzes
+- scorePercentage = (correctCount / questionCount) × 100
+
+Ví dụ:
+- Quiz 1: 80%
+- Quiz 2: 90%
+- Quiz 3: 70%
+- Average = (80 + 90 + 70) / 3 = 80%
+
+
+VII. SỐ QUIZ HOÀN THÀNH (COMPLETED QUIZZES)
+-------------------------------------------
+
+Được tính trong Leaderboard: lib/features/leaderboard/services/leaderboard_service.dart
+
+Cách tính:
+- completedQuizzes = Số lượng documents trong collection 'quiz_sessions'
+- Mỗi quiz session được lưu = 1 quiz hoàn thành
+
+
+VIII. ĐỒNG BỘ DỮ LIỆU GIỮA QUIZ, DASHBOARD, LEADERBOARD
+--------------------------------------------------------
+
+1. QUIZ SERVICE:
+   - Tính XP cho mỗi quiz session
+   - Lưu vào quiz_sessions collection
+   - Cập nhật totalXP và currentStreak trong users collection
+
+2. DASHBOARD SERVICE:
+   - Đọc từ quiz_sessions để tính:
+     * Words learned (today/week/month)
+     * Total XP (tổng từ quiz_sessions)
+     * Average accuracy
+     * Chart data (XP, words, accuracy theo ngày)
+   - Đọc currentStreak từ users collection
+
+3. LEADERBOARD SERVICE:
+   - Đọc từ users collection: totalXP, currentStreak, longestStreak
+   - Đọc từ quiz_sessions để tính:
+     * Weekly XP, Monthly XP
+     * Completed quizzes
+     * Average score
+     * Weekly/Monthly streak days
+
+LƯU Ý QUAN TRỌNG:
+-----------------
+- Tất cả dữ liệu đều lấy từ quiz_sessions collection
+- Total XP được lưu ở 2 nơi:
+  * users.totalXP (để truy vấn nhanh)
+  * Tổng từ quiz_sessions (để đảm bảo chính xác)
+- Dashboard và Leaderboard nên tính lại từ quiz_sessions để đảm bảo đồng bộ
+
+
+IX. CẤU TRÚC DỮ LIỆU FIRESTORE
+-------------------------------
+
+Collection: users/{userId}
+  Fields:
+    - totalXP: int
+    - currentStreak: int
+    - longestStreak: int
+    - lastActiveDate: Timestamp
+    - displayName: String
+    - photoUrl: String
+
+Subcollection: users/{userId}/quiz_sessions/{sessionId}
+  Fields:
+    - topicId: String
+    - topicName: String
+    - mode: String ('quiz' hoặc 'flashcard')
+    - questionCount: int
+    - correctCount: int
+    - scorePercentage: int
+    - xpEarned: int
+    - durationSeconds: int
+    - playedAt: Timestamp
+    - answers: List<Map>
+
+
+X. CÁC FILE LIÊN QUAN
+---------------------
+
+1. Tính XP:
+   - lib/features/quiz/services/quiz_service.dart (calculateXp method)
+
+2. Lưu XP:
+   - lib/features/quiz/services/quiz_session_service.dart (saveSession method)
+
+3. Dashboard:
+   - lib/features/dashboard/services/dashboard_service.dart
+
+4. Leaderboard:
+   - lib/features/leaderboard/services/leaderboard_service.dart
+
+5. Models:
+   - lib/features/quiz/models/quiz_session.dart
+   - lib/features/dashboard/models/dashboard_stats.dart
+   - lib/features/leaderboard/models/leaderboard_entry.dart
+
+
+================================================================================
+                    KẾT THÚC TÀI LIỆU
+================================================================================

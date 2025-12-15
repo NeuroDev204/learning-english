@@ -9,6 +9,9 @@ import '../features/topic/models/vocabulary.dart';
 import '../features/topic/services/vocabulary_service.dart';
 import 'edit_profile_screen.dart';
 import '../features/quiz/screens/quiz_history_screen.dart';
+import '../features/dashboard/screens/dashboard_screen.dart';
+import '../features/leaderboard/screens/leaderboard_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -351,6 +354,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                     _buildDrawerItem(
+                      icon: Icons.dashboard_outlined,
+                      title: 'Dashboard',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DashboardScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildDrawerItem(
                       icon: Icons.settings_outlined,
                       title: 'Settings',
                       onTap: () {
@@ -371,7 +387,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: 'Leaderboard',
                       onTap: () {
                         Navigator.pop(context);
-                        // Navigate to leaderboard
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LeaderboardScreen(),
+                          ),
+                        );
                       },
                     ),
                     _buildDrawerItem(
