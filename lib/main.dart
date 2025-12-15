@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,6 +10,8 @@ import 'features/exam/providers/exam_provider.dart';
 import 'features/exam/providers/exam_timer_provider.dart';
 import 'screens/auth_wrapper.dart';
 import 'core/theme/app_theme.dart';
+import 'features/dashboard/services/dashboard_cache.dart';
+
 
 void main() async {
   // Đảm bảo Flutter binding được khởi tạo
@@ -24,6 +25,10 @@ void main() async {
   // Khởi tạo Hive
   await Hive.initFlutter();
   await Hive.openBox('topicCache');
+  
+  // Khởi tạo Dashboard cache
+  final dashboardCache = DashboardCache();
+  await dashboardCache.init();
 
   // Initialize default admin user if not exists
   final adminService = AdminInitializationService();
