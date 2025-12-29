@@ -451,9 +451,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     final user = authService.currentUser;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
@@ -514,15 +514,14 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                 fit: BoxFit.cover,
                               )
                             : _currentAvatarUrl != null &&
-                                  _currentAvatarUrl!.isNotEmpty
-                            ? DecorationImage(
-                                image: NetworkImage(_currentAvatarUrl!),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
+                                    _currentAvatarUrl!.isNotEmpty
+                                ? DecorationImage(
+                                    image: NetworkImage(_currentAvatarUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                       ),
-                      child:
-                          (_selectedImageFile == null &&
+                      child: (_selectedImageFile == null &&
                               (_currentAvatarUrl == null ||
                                   _currentAvatarUrl!.isEmpty))
                           ? Center(
@@ -1105,12 +1104,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     title,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      color: isSelected
-                          ? AppTheme.primaryBlue
-                          : AppTheme.textDark,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color:
+                          isSelected ? AppTheme.primaryBlue : AppTheme.textDark,
                     ),
                   ),
                   const SizedBox(height: 4),

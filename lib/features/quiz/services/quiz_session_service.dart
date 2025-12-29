@@ -2,12 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../models/quiz_session.dart';
+import '../../auth/services/xp_tracking_service.dart';
+import '../../auth/services/auth_service.dart';
 
 class QuizSessionService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final XPTrackingService _xpTrackingService = XPTrackingService();
 
-  Future<void> saveSession(QuizSession session) async {
+  Future<void> saveSession(QuizSession session, AuthService authService) async {
     final user = _auth.currentUser;
     if (user == null) {
       debugPrint(
@@ -19,80 +22,35 @@ class QuizSessionService {
       final userRef = _firestore.collection('users').doc(user.uid);
       final sessionsRef = userRef.collection('quiz_sessions');
 
-      // Sửa: Dùng Timestamp.now() thay vì FieldValue.serverTimestamp() để tránh lỗi trên web
+      // Lưu quiz session
       final sessionData = session.toMap();
       sessionData['playedAt'] = Timestamp.fromDate(session.playedAt);
 
-      // Lưu session trước
       final sessionRef = sessionsRef.doc();
       await sessionRef.set(sessionData);
 
-      // Sau đó cập nhật user XP (dùng batch thay vì transaction để đơn giản hơn)
-      final userSnapshot = await userRef.get();
-
-      int currentXP = 0;
-      int currentStreak = 0;
-      int longestStreak = 0;
-      DateTime? lastActive;
-
-      if (userSnapshot.exists) {
-        final data = userSnapshot.data()!;
-        currentXP = (data['totalXP'] as int?) ?? 0;
-        currentStreak = (data['currentStreak'] as int?) ?? 0;
-        longestStreak = (data['longestStreak'] as int?) ?? 0;
-        final lastTs = data['lastActiveDate'] as Timestamp?;
-        lastActive = lastTs?.toDate();
-      }
-
-      final today = DateTime.now();
-      final todayStart = DateTime(today.year, today.month, today.day);
-      
-      // Kiểm tra xem có phải ngày mới không
-      bool isNewDay = false;
-      if (lastActive == null) {
-        // Lần đầu làm quiz
-        isNewDay = true;
-      } else {
-        final lastActiveStart = DateTime(
-          lastActive.year,
-          lastActive.month,
-          lastActive.day,
+      // Lấy current user profile
+      final userData = authService.currentUserData;
+      if (userData?.profile != null) {
+        // Sử dụng XPTrackingService để cập nhật XP và streak
+        await _xpTrackingService.addXP(
+          user.uid,
+          userData!.profile!,
+          session.xpEarned,
         );
-        
-        // Nếu là ngày mới
-        if (todayStart.isAfter(lastActiveStart)) {
-          final daysDiff = todayStart.difference(lastActiveStart).inDays;
-          
-          if (daysDiff == 1) {
-            // Ngày liên tiếp - tăng streak
-            isNewDay = true;
-          } else if (daysDiff > 1) {
-            // Bỏ lỡ ngày - reset streak về 1 (ngày hôm nay)
-            currentStreak = 0;
-            isNewDay = true;
-          }
-          // Nếu daysDiff == 0 thì đã làm quiz trong ngày hôm nay rồi
-        }
+
+        // Cập nhật streak
+        await _xpTrackingService.updateStreak(
+          user.uid,
+          userData.profile!,
+        );
+
+        // Reload user data để cập nhật UI
+        await authService.reloadUser();
       }
-
-      // Cập nhật streak
-      final newStreak = isNewDay ? currentStreak + 1 : currentStreak;
-      
-      // Cập nhật longestStreak nếu cần
-      final newLongestStreak = newStreak > longestStreak 
-          ? newStreak 
-          : longestStreak;
-
-      await userRef.set({
-        'totalXP': currentXP + session.xpEarned,
-        'currentStreak': newStreak,
-        'longestStreak': newLongestStreak,
-        'lastActiveDate': Timestamp.fromDate(today),
-      }, SetOptions(merge: true));
 
       debugPrint('Đã lưu kết quả quiz thành công cho user: ${user.uid}');
-      debugPrint('XP: ${currentXP} + ${session.xpEarned} = ${currentXP + session.xpEarned}');
-      debugPrint('Streak: $currentStreak -> $newStreak');
+      debugPrint('XP earned: ${session.xpEarned}');
     } catch (e) {
       debugPrint('Lỗi khi lưu kết quả quiz: $e');
       rethrow;

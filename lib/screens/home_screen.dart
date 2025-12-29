@@ -4,6 +4,7 @@ import 'package:learn_english/features/topic/screens/topic_list_screen.dart';
 import 'package:learn_english/features/exam/views/import_file_page.dart';
 import 'package:provider/provider.dart';
 import '../features/auth/services/auth_service.dart';
+import '../features/auth/services/xp_tracking_service.dart';
 import '../core/theme/app_theme.dart';
 import '../features/topic/models/vocabulary.dart';
 import '../features/topic/services/vocabulary_service.dart';
@@ -11,7 +12,7 @@ import 'edit_profile_screen.dart';
 import '../features/quiz/screens/quiz_history_screen.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/leaderboard/screens/leaderboard_screen.dart';
-
+import 'notification_settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -23,20 +24,61 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Service to fetch vocabulary data
   final VocabularyService _vocabService = VocabularyService();
+  final XPTrackingService _xpTrackingService = XPTrackingService();
 
-  int _currentStreak = 0;
-  int _totalXP = 0;
   int _currentLesson = 1;
+  bool _hasCheckedDailyReset = false;
 
   @override
   void initState() {
     super.initState();
     _checkEmailVerification();
+    _checkDailyReset();
   }
 
   Future<void> _checkEmailVerification() async {
     final authService = Provider.of<AuthService>(context, listen: false);
+    debugPrint('🔍 _checkEmailVerification - Before reload');
     await authService.reloadUser();
+    debugPrint(
+        '🔍 _checkEmailVerification - After reload: XP=${authService.currentUserData?.profile?.totalXP}');
+  }
+
+  Future<void> _checkDailyReset() async {
+    if (_hasCheckedDailyReset) return;
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    debugPrint('🔍 _checkDailyReset - Starting...');
+    // Đợi 1 chút để AuthService load xong user data
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final userData = authService.currentUserData;
+    debugPrint(
+        '🔍 _checkDailyReset - userData: ${userData?.id}, hasProfile: ${userData?.profile != null}');
+    debugPrint(
+        '🔍 _checkDailyReset - Current XP: ${userData?.profile?.totalXP}, TodayXP: ${userData?.profile?.todayXP}, Streak: ${userData?.profile?.currentStreak}');
+
+    if (userData?.profile != null && userData?.id != null) {
+      // Kiểm tra và reset XP nếu sang ngày mới
+      await _xpTrackingService.checkAndResetDailyXP(
+        userData!.id,
+        userData.profile,
+      );
+
+      // Reload user data để cập nhật UI
+      debugPrint('🔍 _checkDailyReset - Before final reload');
+      await authService.reloadUser();
+      debugPrint(
+          '🔍 _checkDailyReset - After final reload: XP=${authService.currentUserData?.profile?.totalXP}');
+
+      if (mounted) {
+        setState(() {
+          _hasCheckedDailyReset = true;
+        });
+      }
+    } else {
+      debugPrint('⚠️ _checkDailyReset - No user data or profile!');
+    }
   }
 
   Future<void> _handleLogout() async {
@@ -89,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final bool isAdmin = role == 'admin';
 
         return Scaffold(
-          backgroundColor: AppTheme.paleBlue,
+          backgroundColor: Theme.of(context).colorScheme.background,
           appBar: _buildAppBar(),
           drawer: _buildDrawer(isAdmin), // NOTE: truyền isAdmin vào drawer
           body: _buildBody(isAdmin), // NOTE: truyền isAdmin vào body
@@ -101,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ==================== APP BAR ====================
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
       leading: Builder(
         builder: (context) => Consumer<AuthService>(
@@ -116,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => Scaffold.of(context).openDrawer(),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     shape: BoxShape.circle,
                     border: Border.all(color: AppTheme.primaryBlue, width: 2),
                     image: photoUrl != null && photoUrl.isNotEmpty
@@ -145,61 +187,86 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ),
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.accentYellow.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.local_fire_department,
-                  color: AppTheme.accentYellow,
-                  size: 20,
+      title: Consumer<AuthService>(
+        builder: (context, authService, child) {
+          final userData = authService.currentUserData;
+          final currentStreak = userData?.profile?.currentStreak ?? 0;
+          final totalXP = userData?.profile?.totalXP ?? 0;
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentYellow.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(24),
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  '$_currentStreak',
-                  style: TextStyle(
-                    color: AppTheme.accentYellow,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.local_fire_department,
+                      color: AppTheme.accentYellow,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$currentStreak',
+                      style: TextStyle(
+                        color: AppTheme.accentYellow,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.warningYellow.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.star, color: AppTheme.warningYellow, size: 20),
-                const SizedBox(width: 4),
-                Text(
-                  '$_totalXP',
-                  style: TextStyle(
-                    color: AppTheme.warningYellow,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.warningYellow.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ],
-            ),
-          ),
-        ],
+                child: Row(
+                  children: [
+                    Icon(Icons.star, color: AppTheme.warningYellow, size: 20),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$totalXP',
+                      style: TextStyle(
+                        color: AppTheme.warningYellow,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
       actions: [
+        // Notification button (hỗ trợ cả web và mobile)
         IconButton(
-          icon: Icon(Icons.shopping_bag_outlined, color: AppTheme.primaryBlue),
+          icon: const Icon(Icons.notifications_outlined,
+              color: AppTheme.primaryBlue),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotificationSettingsScreen(),
+              ),
+            );
+          },
+          tooltip: 'Nhắc nhở học tập',
+        ),
+        IconButton(
+          icon: const Icon(Icons.shopping_bag_outlined,
+              color: AppTheme.primaryBlue),
           onPressed: () {
             // Shop action
           },
@@ -237,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 70,
                       height: 70,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 3),
                         image: photoUrl != null && photoUrl.isNotEmpty
@@ -450,7 +517,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                       ),
-
                       _buildDrawerItem(
                         icon: Icons.translate_rounded,
                         title: 'Manage Vocabulary',
@@ -799,7 +865,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 100,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black.withValues(alpha: 0.1)
+                            : Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
                   ),
@@ -811,7 +879,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black.withValues(alpha: 0.08)
+                            : Colors.white.withValues(alpha: 0.08),
                       ),
                     ),
                   ),
@@ -824,10 +894,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.black.withValues(alpha: 0.2)
+                                    : Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.3),
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.black.withValues(alpha: 0.3)
+                                  : Colors.white.withValues(alpha: 0.3),
                               width: 1.5,
                             ),
                           ),
@@ -861,9 +937,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.black.withValues(alpha: 0.2)
+                                          : Colors.white.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Text(
@@ -906,7 +983,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.black.withValues(alpha: 0.2)
+                                    : Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -932,7 +1012,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.black.withValues(alpha: 0.15)
+            : Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -1019,158 +1101,102 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ==================== DAILY GOAL CARD ====================
   Widget _buildDailyGoalCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Decorative emoji in corner
-          const Positioned(
-            top: -5,
-            right: -5,
-            child: Text('🎯', style: TextStyle(fontSize: 35)),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Daily Goal',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textDark,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('🌟', style: TextStyle(fontSize: 20)),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.successGreen.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '0/20 XP',
-                      style: TextStyle(
-                        color: AppTheme.successGreen,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+    return Consumer<AuthService>(
+      builder: (context, authService, child) {
+        final userData = authService.currentUserData;
+        final dailyGoal = userData?.settings.dailyGoal ?? 20;
+        final todayProgress = userData?.profile?.todayXP ?? 0;
+        final progressPercent = (todayProgress / dailyGoal).clamp(0.0, 1.0);
 
-              // Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: LinearProgressIndicator(
-                  value: 0.0,
-                  minHeight: 12,
-                  backgroundColor: AppTheme.paleBlue,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.successGreen,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              Text(
-                'Complete lessons to reach your daily goal!',
-                style: TextStyle(fontSize: 13, color: AppTheme.textGrey),
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+          child: Stack(
+            children: [
+              // Decorative emoji in corner
+              const Positioned(
+                top: -5,
+                right: -5,
+                child: Text('🎯', style: TextStyle(fontSize: 35)),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Daily Goal',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textDark,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('🌟', style: TextStyle(fontSize: 20)),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.successGreen.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '$todayProgress/$dailyGoal XP',
+                          style: TextStyle(
+                            color: AppTheme.successGreen,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
 
-  // ==================== (Old) LEARNING PATH WIDGETS ====================
+                  // Progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: LinearProgressIndicator(
+                      value: progressPercent,
+                      minHeight: 12,
+                      backgroundColor: AppTheme.paleBlue,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.successGreen,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
 
-  Widget _buildLearningPath() {
-    return Column(
-      children: [
-        _buildLessonNode(
-          lessonNumber: 1,
-          title: 'Basics 1',
-          subtitle: 'Learn basic greetings',
-          icon: Icons.waving_hand,
-          emoji: '👋',
-          isCompleted: false,
-          isActive: true,
-          progress: 0.3,
-        ),
-        _buildPathConnector(),
-
-        _buildLessonNode(
-          lessonNumber: 2,
-          title: 'Basics 2',
-          subtitle: 'Common phrases',
-          icon: Icons.chat_bubble_outline,
-          emoji: '💬',
-          isCompleted: false,
-          isActive: false,
-          isLocked: true,
-        ),
-        _buildPathConnector(),
-
-        _buildLessonNode(
-          lessonNumber: 3,
-          title: 'Grammar 1',
-          subtitle: 'Sentence structure',
-          icon: Icons.school_outlined,
-          emoji: '📝',
-          isCompleted: false,
-          isActive: false,
-          isLocked: true,
-        ),
-        _buildPathConnector(),
-
-        _buildLessonNode(
-          lessonNumber: 4,
-          title: 'Vocabulary',
-          subtitle: 'Daily words',
-          icon: Icons.menu_book_outlined,
-          emoji: '📚',
-          isCompleted: false,
-          isActive: false,
-          isLocked: true,
-        ),
-        _buildPathConnector(),
-
-        _buildLessonNode(
-          lessonNumber: 5,
-          title: 'Practice',
-          subtitle: 'Review & test',
-          icon: Icons.quiz_outlined,
-          emoji: '🎯',
-          isCompleted: false,
-          isActive: false,
-          isLocked: true,
-        ),
-      ],
+                  Text(
+                    progressPercent >= 1.0
+                        ? '🎉 Goal achieved! Keep going!'
+                        : 'Complete lessons to reach your daily goal!',
+                    style: TextStyle(fontSize: 13, color: AppTheme.textGrey),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -1239,12 +1265,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: isLocked
                       ? const Icon(Icons.lock, color: Colors.grey, size: 32)
                       : isCompleted
-                      ? Icon(
-                          Icons.check,
-                          color: AppTheme.successGreen,
-                          size: 40,
-                        )
-                      : Icon(icon, color: getColor(), size: 36),
+                          ? Icon(
+                              Icons.check,
+                              color: AppTheme.successGreen,
+                              size: 40,
+                            )
+                          : Icon(icon, color: getColor(), size: 36),
                 ),
               ],
             ),
@@ -1491,38 +1517,48 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 24),
 
                     // Stats
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildStatItem(
-                          icon: Icons.local_fire_department,
-                          value: '$_currentStreak',
-                          label: 'Day Streak',
-                          color: AppTheme.accentYellow,
-                        ),
-                        Container(
-                          width: 1,
-                          height: 50,
-                          color: Colors.grey.shade200,
-                        ),
-                        _buildStatItem(
-                          icon: Icons.star,
-                          value: '$_totalXP',
-                          label: 'Total XP',
-                          color: AppTheme.warningYellow,
-                        ),
-                        Container(
-                          width: 1,
-                          height: 50,
-                          color: Colors.grey.shade200,
-                        ),
-                        _buildStatItem(
-                          icon: Icons.emoji_events,
-                          value: '0',
-                          label: 'Achievements',
-                          color: AppTheme.successGreen,
-                        ),
-                      ],
+                    Consumer<AuthService>(
+                      builder: (context, authService, child) {
+                        final currentStreak = authService
+                                .currentUserData?.profile?.currentStreak ??
+                            0;
+                        final totalXP =
+                            authService.currentUserData?.profile?.totalXP ?? 0;
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildStatItem(
+                              icon: Icons.local_fire_department,
+                              value: '$currentStreak',
+                              label: 'Day Streak',
+                              color: AppTheme.accentYellow,
+                            ),
+                            Container(
+                              width: 1,
+                              height: 50,
+                              color: Colors.grey.shade200,
+                            ),
+                            _buildStatItem(
+                              icon: Icons.star,
+                              value: '$totalXP',
+                              label: 'Total XP',
+                              color: AppTheme.warningYellow,
+                            ),
+                            Container(
+                              width: 1,
+                              height: 50,
+                              color: Colors.grey.shade200,
+                            ),
+                            _buildStatItem(
+                              icon: Icons.emoji_events,
+                              value: '0',
+                              label: 'Achievements',
+                              color: AppTheme.successGreen,
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 32),
 

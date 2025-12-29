@@ -205,11 +205,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Title
                       Text(
                         'Welcome Back!',
-                        style: Theme.of(context).textTheme.displaySmall
-                            ?.copyWith(
-                              color: AppTheme.textDark,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  color: AppTheme.textDark,
+                                  fontWeight: FontWeight.bold,
+                                ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
@@ -217,8 +217,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         'Sign in to continue learning',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppTheme.textGrey,
-                        ),
+                              color: AppTheme.textGrey,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 40),
@@ -308,9 +308,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       Consumer<AuthService>(
                         builder: (context, authService, child) {
                           return ElevatedButton(
-                            onPressed: authService.isLoading
-                                ? null
-                                : _handleLogin,
+                            onPressed:
+                                authService.isLoading ? null : _handleLogin,
                             child: authService.isLoading
                                 ? SizedBox(
                                     height: 20,
@@ -331,7 +330,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Divider
                       Row(
                         children: [
-                          Expanded(child: Divider(color: Colors.grey.shade300)),
+                          Expanded(
+                              child: Divider(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.2))),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
@@ -342,16 +346,20 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ),
-                          Expanded(child: Divider(color: Colors.grey.shade300)),
+                          Expanded(
+                              child: Divider(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.2))),
                         ],
                       ),
                       const SizedBox(height: 24),
 
                       // Google Sign-In Button
                       OutlinedButton.icon(
-                        onPressed: _isGoogleLoading
-                            ? null
-                            : _handleGoogleSignIn,
+                        onPressed:
+                            _isGoogleLoading ? null : _handleGoogleSignIn,
                         icon: _isGoogleLoading
                             ? const SizedBox.shrink()
                             : const Text('🔵', style: TextStyle(fontSize: 20)),
@@ -370,11 +378,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.textDark,
                           side: BorderSide(
-                            color: Colors.grey.shade300,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.2),
                             width: 2,
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.white,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -423,7 +435,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       AppTheme.infoBox(
                         icon: Icons.lightbulb_outline,
                         text: 'Learning a new language opens new worlds! 🌍',
-                        backgroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                         iconColor: AppTheme.accentYellow,
                         textColor: AppTheme.textGrey,
                       ),
@@ -444,7 +456,7 @@ class _LoginScreenState extends State<LoginScreen> {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
         shape: BoxShape.circle,
       ),
       child: Center(

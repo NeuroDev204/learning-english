@@ -170,6 +170,8 @@ class UserProfileModel {
   final String? language;
   final String? learningAim;
   final int totalXP;
+  final int todayXP;
+  final DateTime? lastXPUpdateDate;
   final int currentStreak;
   final int longestStreak;
   final List<String> completedLessons;
@@ -181,6 +183,8 @@ class UserProfileModel {
     this.language = 'en',
     this.learningAim,
     this.totalXP = 0,
+    this.todayXP = 0,
+    this.lastXPUpdateDate,
     this.currentStreak = 0,
     this.longestStreak = 0,
     this.completedLessons = const [],
@@ -194,15 +198,17 @@ class UserProfileModel {
       language: json['language'] as String? ?? 'en',
       learningAim: json['learningAim'] as String?,
       totalXP: json['totalXP'] as int? ?? 0,
+      todayXP: json['todayXP'] as int? ?? 0,
+      lastXPUpdateDate: json['lastXPUpdateDate'] != null
+          ? UserModel._parseDateTime(json['lastXPUpdateDate'])
+          : null,
       currentStreak: json['currentStreak'] as int? ?? 0,
       longestStreak: json['longestStreak'] as int? ?? 0,
-      completedLessons:
-          (json['completedLessons'] as List<dynamic>?)
+      completedLessons: (json['completedLessons'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
-      achievements:
-          (json['achievements'] as Map<String, dynamic>?)?.map(
+      achievements: (json['achievements'] as Map<String, dynamic>?)?.map(
             (key, value) => MapEntry(key, value as int),
           ) ??
           {},
@@ -216,6 +222,8 @@ class UserProfileModel {
       'language': language,
       'learningAim': learningAim,
       'totalXP': totalXP,
+      'todayXP': todayXP,
+      'lastXPUpdateDate': lastXPUpdateDate?.toIso8601String(),
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
       'completedLessons': completedLessons,
@@ -230,6 +238,8 @@ class UserProfileModel {
       language: language,
       learningAim: learningAim,
       totalXP: totalXP,
+      todayXP: todayXP,
+      lastXPUpdateDate: lastXPUpdateDate,
       currentStreak: currentStreak,
       longestStreak: longestStreak,
       completedLessons: completedLessons,
@@ -244,6 +254,8 @@ class UserProfileModel {
       language: entity.language,
       learningAim: entity.learningAim,
       totalXP: entity.totalXP,
+      todayXP: entity.todayXP,
+      lastXPUpdateDate: entity.lastXPUpdateDate,
       currentStreak: entity.currentStreak,
       longestStreak: entity.longestStreak,
       completedLessons: entity.completedLessons,

@@ -25,7 +25,8 @@ class AuthService extends ChangeNotifier {
 
   firebase_auth.User? get currentUser => _authRepository.currentUser;
 
-  Stream<firebase_auth.User?> get authStateChanges => _authRepository.authStateChanges;
+  Stream<firebase_auth.User?> get authStateChanges =>
+      _authRepository.authStateChanges;
 
   void _setLoading(bool value) {
     _isLoading = value;
@@ -114,6 +115,8 @@ class AuthService extends ChangeNotifier {
       try {
         final userData = await _userRepository.getUserData(user.id);
         _currentUserData = userData ?? user;
+        debugPrint(
+            '✅ SignIn - Loaded user data: XP=${_currentUserData?.profile?.totalXP}, TodayXP=${_currentUserData?.profile?.todayXP}, Streak=${_currentUserData?.profile?.currentStreak}');
       } catch (e) {
         debugPrint('Warning: Could not load user data: $e');
         _currentUserData = user;
@@ -216,6 +219,15 @@ class AuthService extends ChangeNotifier {
   Future<void> reloadUser() async {
     try {
       await _authRepository.reloadUser();
+
+      // Load lại user data từ Firestore
+      final user = _authRepository.currentUser;
+      if (user != null) {
+        _currentUserData = await _userRepository.getUserData(user.uid);
+        debugPrint(
+            '🔄 Reloaded user data - XP: ${_currentUserData?.profile?.totalXP}, Today XP: ${_currentUserData?.profile?.todayXP}, Streak: ${_currentUserData?.profile?.currentStreak}');
+      }
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error reloading user: $e');
