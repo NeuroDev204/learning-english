@@ -69,8 +69,11 @@ class UserProfile {
   final String? phoneNumber;
   final String? bio;
   final String? language;
-  final String? learningAim; // pronunciation, communication, toeic, ielts, business, travel
+  final String?
+      learningAim; // pronunciation, communication, toeic, ielts, business, travel
   final int totalXP;
+  final int todayXP; // XP earned today
+  final DateTime? lastXPUpdateDate; // Last date XP was updated
   final int currentStreak;
   final int longestStreak;
   final List<String> completedLessons;
@@ -82,6 +85,8 @@ class UserProfile {
     this.language = 'en',
     this.learningAim,
     this.totalXP = 0,
+    this.todayXP = 0,
+    this.lastXPUpdateDate,
     this.currentStreak = 0,
     this.longestStreak = 0,
     this.completedLessons = const [],
@@ -94,6 +99,8 @@ class UserProfile {
     String? language,
     String? learningAim,
     int? totalXP,
+    int? todayXP,
+    DateTime? lastXPUpdateDate,
     int? currentStreak,
     int? longestStreak,
     List<String>? completedLessons,
@@ -105,6 +112,8 @@ class UserProfile {
       language: language ?? this.language,
       learningAim: learningAim ?? this.learningAim,
       totalXP: totalXP ?? this.totalXP,
+      todayXP: todayXP ?? this.todayXP,
+      lastXPUpdateDate: lastXPUpdateDate ?? this.lastXPUpdateDate,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
       completedLessons: completedLessons ?? this.completedLessons,

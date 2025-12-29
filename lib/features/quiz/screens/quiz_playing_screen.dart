@@ -1,6 +1,7 @@
 // lib/features/quiz/screens/quiz_playing_screen.dart
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:learn_english/core/theme/app_theme.dart';
 import 'package:learn_english/features/quiz/models/quiz_question.dart';
 import 'package:learn_english/features/quiz/models/quiz_session.dart';
@@ -10,8 +11,8 @@ import 'package:learn_english/features/quiz/widgets/answer_option_button.dart';
 import 'package:learn_english/features/quiz/widgets/confetti_overlay.dart';
 import 'package:learn_english/features/quiz/widgets/loading_quiz_animation.dart';
 import 'package:learn_english/features/quiz/widgets/question_card.dart';
-//import 'package:learn_english/features/quiz/widgets/timer_countdown_widget.dart';
 import 'package:learn_english/features/topic/models/topic.dart';
+import 'package:learn_english/features/auth/services/auth_service.dart';
 import 'quiz_result_screen.dart';
 import 'dart:async';
 
@@ -48,7 +49,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
   String? selectedAnswer;
   final Stopwatch stopwatch = Stopwatch();
   List<String> userAnswers = [];
-  
+
   // Thêm Timer để cập nhật UI mỗi giây
   Timer? _uiUpdateTimer;
   int _remainingSeconds = 0;
@@ -90,10 +91,10 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
         timer.cancel();
         return;
       }
-      
+
       final elapsed = stopwatch.elapsed.inSeconds;
       final remaining = (totalSeconds - elapsed).clamp(0, totalSeconds);
-      
+
       if (remaining <= 0 && !isTimeUp) {
         setState(() => isTimeUp = true);
         timer.cancel();
@@ -132,7 +133,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
 
     // Hủy timer UI update
     _uiUpdateTimer?.cancel();
-    
+
     setState(() => isSubmitting = true);
 
     stopwatch.stop();
@@ -166,7 +167,9 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
       mode: 'quiz',
       questionCount: questions.length,
       correctCount: actualCorrect,
-      scorePercentage: questions.isEmpty ? 0 : ((actualCorrect / questions.length) * 100).round(),
+      scorePercentage: questions.isEmpty
+          ? 0
+          : ((actualCorrect / questions.length) * 100).round(),
       xpEarned: xp,
       durationSeconds: duration,
       playedAt: DateTime.now(),
@@ -193,7 +196,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
 
     // Lưu trong background (không block UI)
     try {
-      await _sessionService.saveSession(session);
+      final authService = Provider.of<AuthService>(context, listen: false);
+      await _sessionService.saveSession(session, authService);
       debugPrint('Lưu kết quả thành công!');
     } catch (e) {
       debugPrint('Lỗi lưu (không ảnh hưởng UI): $e');
@@ -278,8 +282,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                   Icon(
                     Icons.timer_outlined,
                     size: 20,
-                    color: _remainingSeconds <= 10 
-                        ? AppTheme.errorRed 
+                    color: _remainingSeconds <= 10
+                        ? AppTheme.errorRed
                         : AppTheme.primaryBlue,
                   ),
                   const SizedBox(width: 8),
@@ -288,8 +292,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: _remainingSeconds <= 10 
-                          ? AppTheme.errorRed 
+                      color: _remainingSeconds <= 10
+                          ? AppTheme.errorRed
                           : AppTheme.textDark,
                     ),
                   ),
@@ -307,8 +311,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                   value: timeProgress,
                   backgroundColor: Colors.grey.shade200,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    _remainingSeconds <= 10 
-                        ? AppTheme.errorRed 
+                    _remainingSeconds <= 10
+                        ? AppTheme.errorRed
                         : AppTheme.primaryBlue,
                   ),
                 ),
@@ -396,7 +400,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
 
                   QuestionCard(
@@ -404,7 +408,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                     currentQuestion: currentIndex + 1,
                     totalQuestions: questions.length,
                   ),
-                  
+
                   const SizedBox(height: 32),
 
                   // Đáp án dạng 2x2 grid - cải thiện spacing
@@ -412,15 +416,18 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.zero,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      childAspectRatio: 3.0, // Giảm từ 3.2 để đáp án cao hơn, dễ nhìn hơn
+                      childAspectRatio:
+                          3.0, // Giảm từ 3.2 để đáp án cao hơn, dễ nhìn hơn
                     ),
                     itemCount: question.options.length,
                     itemBuilder: (context, i) {
-                      return _buildOption(i, question.options, labels, question);
+                      return _buildOption(
+                          i, question.options, labels, question);
                     },
                   ),
                 ],
@@ -433,7 +440,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(30)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -465,15 +473,17 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                           itemCount: questions.length,
                           itemBuilder: (context, index) {
                             final answered = userAnswers[index].isNotEmpty;
-                            final correct = answered && 
-                                userAnswers[index] == questions[index].correctAnswer;
+                            final correct = answered &&
+                                userAnswers[index] ==
+                                    questions[index].correctAnswer;
 
                             return GestureDetector(
                               onTap: () => _goToQuestion(index),
                               child: Container(
                                 width: 48,
                                 height: 48,
-                                margin: const EdgeInsets.symmetric(horizontal: 6),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 6),
                                 decoration: BoxDecoration(
                                   color: currentIndex == index
                                       ? AppTheme.primaryBlue
@@ -492,7 +502,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                                   boxShadow: currentIndex == index
                                       ? [
                                           BoxShadow(
-                                            color: AppTheme.primaryBlue.withOpacity(0.4),
+                                            color: AppTheme.primaryBlue
+                                                .withOpacity(0.4),
                                             blurRadius: 8,
                                             offset: const Offset(0, 4),
                                           ),
@@ -527,9 +538,10 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: (currentIndex > 0 && !isSubmitting && !isTimeUp)
-                            ? () => _goToQuestion(currentIndex - 1)
-                            : null,
+                        onPressed:
+                            (currentIndex > 0 && !isSubmitting && !isTimeUp)
+                                ? () => _goToQuestion(currentIndex - 1)
+                                : null,
                         icon: const Icon(Icons.arrow_back, size: 20),
                         label: const Text('Trước'),
                         style: ElevatedButton.styleFrom(
@@ -538,9 +550,10 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                           disabledBackgroundColor: Colors.grey.shade100,
                           disabledForegroundColor: Colors.grey.shade400,
                           side: BorderSide(
-                            color: (currentIndex > 0 && !isSubmitting && !isTimeUp)
-                                ? AppTheme.primaryBlue
-                                : Colors.grey.shade300,
+                            color:
+                                (currentIndex > 0 && !isSubmitting && !isTimeUp)
+                                    ? AppTheme.primaryBlue
+                                    : Colors.grey.shade300,
                             width: 2,
                           ),
                           shape: RoundedRectangleBorder(
@@ -555,16 +568,16 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
-                        onPressed: (isSubmitting || isTimeUp)
-                            ? null
-                            : _goToResult,
+                        onPressed:
+                            (isSubmitting || isTimeUp) ? null : _goToResult,
                         icon: isSubmitting
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
                                 ),
                               )
                             : const Icon(Icons.check_circle, size: 22),
@@ -606,8 +619,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
     );
   }
 
-  Widget _buildOption(
-      int index, List<String> options, List<String> labels, QuizQuestion question) {
+  Widget _buildOption(int index, List<String> options, List<String> labels,
+      QuizQuestion question) {
     final opt = options[index];
     return AnswerOptionButton(
       label: labels[index],

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../../domain/entities/user_entity.dart';
 import '../models/user_model.dart';
 
@@ -15,19 +16,89 @@ class UserDatasource {
   /// Get user data from Firestore
   Future<UserEntity?> getUserData(String userId) async {
     try {
-      final doc = await _firestore.collection(_usersCollection).doc(userId).get();
+      final doc =
+          await _firestore.collection(_usersCollection).doc(userId).get();
 
       if (!doc.exists) {
+        debugPrint(
+            '📄 getUserData - Document does not exist for userId: $userId');
         return null;
       }
 
       final data = doc.data();
       if (data == null) {
+        debugPrint(
+            '📄 getUserData - Document exists but data is null for userId: $userId');
         return null;
+      }
+
+      debugPrint('📄 getUserData - Raw Firestore data for $userId:');
+      debugPrint('   - profile.totalXP: ${data['profile']?['totalXP']}');
+      debugPrint('   - profile.todayXP: ${data['profile']?['todayXP']}');
+      debugPrint(
+          '   - profile.currentStreak: ${data['profile']?['currentStreak']}');
+      debugPrint(
+          '   - profile.lastXPUpdateDate: ${data['profile']?['lastXPUpdateDate']}');
+
+      // Auto-migrate: Thêm các field XP tracking nếu chưa có
+      final profile = data['profile'] as Map<String, dynamic>?;
+      if (profile != null) {
+        bool needsUpdate = false;
+        final updates = <String, dynamic>{};
+
+        if (!profile.containsKey('todayXP')) {
+          updates['profile.todayXP'] = 0;
+          needsUpdate = true;
+          debugPrint('🔧 Auto-migrating: Adding todayXP field');
+        }
+
+        if (!profile.containsKey('lastXPUpdateDate')) {
+          updates['profile.lastXPUpdateDate'] =
+              DateTime.now().toIso8601String();
+          needsUpdate = true;
+          debugPrint('🔧 Auto-migrating: Adding lastXPUpdateDate field');
+        }
+
+        if (!profile.containsKey('totalXP')) {
+          updates['profile.totalXP'] = 0;
+          needsUpdate = true;
+          debugPrint('🔧 Auto-migrating: Adding totalXP field');
+        }
+
+        if (!profile.containsKey('currentStreak')) {
+          updates['profile.currentStreak'] = 0;
+          needsUpdate = true;
+          debugPrint('🔧 Auto-migrating: Adding currentStreak field');
+        }
+
+        if (!profile.containsKey('longestStreak')) {
+          updates['profile.longestStreak'] = 0;
+          needsUpdate = true;
+          debugPrint('🔧 Auto-migrating: Adding longestStreak field');
+        }
+
+        if (needsUpdate) {
+          debugPrint('🔧 Updating document with missing fields...');
+          await _firestore
+              .collection(_usersCollection)
+              .doc(userId)
+              .update(updates);
+          debugPrint('✅ Document updated successfully');
+
+          // Reload document để lấy data mới nhất
+          final updatedDoc =
+              await _firestore.collection(_usersCollection).doc(userId).get();
+          final updatedData = updatedDoc.data();
+          if (updatedData != null) {
+            debugPrint('📄 Reloaded updated data');
+            return UserModel.fromJson(updatedData).toEntity();
+          }
+        }
       }
 
       return UserModel.fromJson(data).toEntity();
     } catch (e) {
+      debugPrint('❌ getUserData - Error: $e');
       throw Exception('Failed to get user data: $e');
     }
   }

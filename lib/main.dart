@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,7 @@ import 'features/exam/providers/exam_timer_provider.dart';
 import 'screens/auth_wrapper.dart';
 import 'core/theme/app_theme.dart';
 import 'features/dashboard/services/dashboard_cache.dart';
-
+import 'shared/services/notification_service_factory.dart';
 
 void main() async {
   // Đảm bảo Flutter binding được khởi tạo
@@ -25,10 +26,19 @@ void main() async {
   // Khởi tạo Hive
   await Hive.initFlutter();
   await Hive.openBox('topicCache');
-  
+
   // Khởi tạo Dashboard cache
   final dashboardCache = DashboardCache();
   await dashboardCache.init();
+
+  // Initialize notification service (hỗ trợ cả web và mobile)
+  try {
+    final notificationService = NotificationServiceFactory.getInstance();
+    await notificationService.initialize();
+    print('✅ Notification service initialized (${kIsWeb ? 'Web' : 'Mobile'})');
+  } catch (e) {
+    print('⚠️ Notification service initialization failed: $e');
+  }
 
   // Initialize default admin user if not exists
   final adminService = AdminInitializationService();

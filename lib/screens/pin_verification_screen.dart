@@ -68,7 +68,8 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
         if (_attemptCount >= _maxAttempts) {
           _errorMessage = 'Too many attempts. Please restart the app.';
         } else {
-          _errorMessage = 'Incorrect PIN. ${_maxAttempts - _attemptCount} attempts left.';
+          _errorMessage =
+              'Incorrect PIN. ${_maxAttempts - _attemptCount} attempts left.';
         }
         _pin = '';
       });
@@ -80,7 +81,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
     return WillPopScope(
       onWillPop: () async => false, // Prevent back button
       child: Scaffold(
-        backgroundColor: AppTheme.paleBlue,
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(
@@ -150,7 +151,8 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.error_outline, color: AppTheme.errorRed, size: 20),
+                            const Icon(Icons.error_outline,
+                                color: AppTheme.errorRed, size: 20),
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(
@@ -194,11 +196,17 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
             shape: BoxShape.circle,
             color: index < _pin.length
                 ? AppTheme.primaryBlue
-                : Colors.grey.shade300,
+                : Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.2),
             border: Border.all(
               color: index < _pin.length
                   ? AppTheme.primaryBlue
-                  : Colors.grey.shade400,
+                  : Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.3),
               width: 2,
             ),
           ),
@@ -240,15 +248,21 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
               width: 75,
               height: 75,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.grey.shade200,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.1),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.08),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -270,15 +284,21 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
             width: 75,
             height: 75,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.grey.shade200,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.1),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.08),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),

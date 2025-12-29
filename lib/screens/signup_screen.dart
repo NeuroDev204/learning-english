@@ -58,7 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         SnackBar(
           content: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.white),
+              const Icon(Icons.error_outline, color: Colors.white),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(authService.errorMessage ?? 'Sign up failed'),
@@ -82,7 +82,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Container(
         padding: EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -260,9 +260,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
@@ -298,9 +298,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Text(
                   'Create Account',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: AppTheme.textDark,
-                    fontWeight: FontWeight.bold,
-                  ),
+                        color: AppTheme.textDark,
+                        fontWeight: FontWeight.bold,
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
