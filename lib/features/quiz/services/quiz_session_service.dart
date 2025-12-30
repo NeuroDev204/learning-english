@@ -33,17 +33,18 @@ class QuizSessionService {
       final userData = authService.currentUserData;
       if (userData?.profile != null) {
         // Sử dụng XPTrackingService để cập nhật XP và streak
-        await _xpTrackingService.addXP(
-          user.uid,
-          userData!.profile!,
-          session.xpEarned,
-        );
+       final updatedProfile = await _xpTrackingService.addXP(
+  user.uid,
+  userData!.profile!,
+  session.xpEarned,
+);
 
-        // Cập nhật streak
-        await _xpTrackingService.updateStreak(
-          user.uid,
-          userData.profile!,
-        );
+if (updatedProfile != null) {
+  await _xpTrackingService.updateStreak(
+    user.uid,
+    updatedProfile,  // Profile đã có lastXPUpdateDate mới
+  );
+}
 
         // Reload user data để cập nhật UI
         await authService.reloadUser();

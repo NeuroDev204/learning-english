@@ -37,9 +37,10 @@ class LeaderboardService {
         // Lấy thông tin cơ bản
         final displayName = userData['displayName'] ?? 'Unknown';
         final photoUrl = userData['photoUrl'];
-        final totalXP = (userData['totalXP'] as int?) ?? 0;
-        final currentStreak = (userData['currentStreak'] as int?) ?? 0;
-        final longestStreak = (userData['longestStreak'] as int?) ?? 0;
+        final profile = userData['profile'] as Map<String, dynamic>?;
+        final totalXP = (profile?['totalXP'] as int?) ?? 0;
+        final currentStreak = (profile?['currentStreak'] as int?) ?? 0;
+        final longestStreak = (profile?['longestStreak'] as int?) ?? 0;
 
         // Tính số quiz hoàn thành và điểm trung bình
         final sessionsSnapshot = await _firestore

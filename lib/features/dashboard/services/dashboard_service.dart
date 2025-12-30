@@ -117,7 +117,8 @@ class DashboardService {
 
       // Lấy streak từ user profile
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
-      final currentStreak = (userDoc.data()?['currentStreak'] as int?) ?? 0;
+      final profile = userDoc.data()?['profile'] as Map<String, dynamic>?;
+      final currentStreak = (profile?['currentStreak'] as int?) ?? 0;
 
       return DashboardStats(
         wordsLearnedToday: wordsToday,
