@@ -52,7 +52,8 @@ Quiz 10 câu:
 II. TỔNG XP (TOTAL XP)
 ----------------------
 
-Tổng XP được lưu trong Firestore collection 'users' → field 'totalXP'
+Tổng XP được lưu trong Firestore collection 'users' → field 'profile.totalXP'
+
 
 Cách tính:
 - Mỗi khi hoàn thành quiz, XP từ quiz session được cộng vào totalXP
@@ -90,16 +91,16 @@ IV. STREAK (CHUỖI NGÀY HỌC)
 ---------------------------
 
 1. CURRENT STREAK (Chuỗi ngày học hiện tại):
-   - Được lưu trong: Firestore 'users' → field 'currentStreak'
+   - Được lưu trong: Firestore 'users' → field 'profile.currentStreak'
    - Cách tính:
      * Mỗi ngày làm quiz đầu tiên: currentStreak + 1
      * Nếu đã làm quiz trong ngày: giữ nguyên
-     * Reset về 0 nếu bỏ lỡ 1 ngày (logic này cần implement thêm)
+     * Reset về 1 nếu bỏ lỡ 1 ngày (đã implement đúng trong code)
    - Lưu tại: lib/features/quiz/services/quiz_session_service.dart
 
 2. LONGEST STREAK (Chuỗi ngày học dài nhất):
-   - Được lưu trong: Firestore 'users' → field 'longestStreak'
-   - Cần implement logic để cập nhật khi currentStreak > longestStreak
+   - Được lưu trong: Firestore 'users' → field 'profile.longestStreak'
+   - Đã implement logic để cập nhật khi currentStreak > longestStreak (dòng 116-118 trong xp_tracking_service.dart)
 
 3. WEEKLY STREAK DAYS (Số ngày học trong tuần):
    - Tính số ngày khác nhau có quiz sessions trong tuần
@@ -164,7 +165,8 @@ VIII. ĐỒNG BỘ DỮ LIỆU GIỮA QUIZ, DASHBOARD, LEADERBOARD
 1. QUIZ SERVICE:
    - Tính XP cho mỗi quiz session
    - Lưu vào quiz_sessions collection
-   - Cập nhật totalXP và currentStreak trong users collection
+   - Cập nhật profile.totalXP và profile.currentStreak trong users collection
+   - Sử dụng XPTrackingService để cập nhật
 
 2. DASHBOARD SERVICE:
    - Đọc từ quiz_sessions để tính:
@@ -172,10 +174,10 @@ VIII. ĐỒNG BỘ DỮ LIỆU GIỮA QUIZ, DASHBOARD, LEADERBOARD
      * Total XP (tổng từ quiz_sessions)
      * Average accuracy
      * Chart data (XP, words, accuracy theo ngày)
-   - Đọc currentStreak từ users collection
+   - Đọc profile.currentStreak từ users collection
 
 3. LEADERBOARD SERVICE:
-   - Đọc từ users collection: totalXP, currentStreak, longestStreak
+   - Đọc từ users collection: profile.totalXP, profile.currentStreak, profile.longestStreak
    - Đọc từ quiz_sessions để tính:
      * Weekly XP, Monthly XP
      * Completed quizzes
@@ -186,22 +188,47 @@ LƯU Ý QUAN TRỌNG:
 -----------------
 - Tất cả dữ liệu đều lấy từ quiz_sessions collection
 - Total XP được lưu ở 2 nơi:
-  * users.totalXP (để truy vấn nhanh)
+  * users.profile.totalXP (để truy vấn nhanh)
   * Tổng từ quiz_sessions (để đảm bảo chính xác)
 - Dashboard và Leaderboard nên tính lại từ quiz_sessions để đảm bảo đồng bộ
-
+- Các field XP/Streak nằm trong object 'profile', không phải root level
 
 IX. CẤU TRÚC DỮ LIỆU FIRESTORE
 -------------------------------
 
 Collection: users/{userId}
   Fields:
-    - totalXP: int
-    - currentStreak: int
-    - longestStreak: int
-    - lastActiveDate: Timestamp
-    - displayName: String
-    - photoUrl: String
+    - id: string
+    - email: string
+    - displayName: string
+    - photoUrl: string
+    - emailVerified: boolean
+    - createdAt: timestamp
+    - lastLoginAt: timestamp?
+    - updatedAt: timestamp
+    - role: string ('admin' or 'user')
+    - profile: {
+        phoneNumber: string?
+        bio: string?
+        language: string
+        learningAim: string?
+        totalXP: int                    // ← Nằm trong profile
+        todayXP: int                    // ← Nằm trong profile
+        lastXPUpdateDate: string?       // ← Nằm trong profile (ISO string)
+        currentStreak: int              // ← Nằm trong profile
+        longestStreak: int              // ← Nằm trong profile
+        completedLessons: array
+        achievements: map
+      }
+    - settings: {
+        notificationsEnabled: boolean
+        soundEnabled: boolean
+        darkModeEnabled: boolean
+        languagePreference: string
+        dailyGoal: number
+        reminderEnabled: boolean
+        reminderTime: timestamp?
+      }
 
 Subcollection: users/{userId}/quiz_sessions/{sessionId}
   Fields:

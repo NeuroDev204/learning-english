@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:learn_english/core/theme/app_theme.dart';
 import 'package:learn_english/features/auth/services/auth_service.dart';
 import 'package:learn_english/features/quiz/screens/quiz_config_screen.dart';
+import 'package:learn_english/features/vocabulary/screens/vocabulary_generate_screen.dart';
 import '../models/topic.dart';
 import '../models/vocabulary.dart';
 import '../services/vocabulary_service.dart';
@@ -60,6 +61,19 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
               ],
             ),
             actions: [
+              if (isAdmin)
+                IconButton(
+                  icon: const Icon(Icons.auto_awesome, color: AppTheme.primaryBlue),
+                  tooltip: 'Generate với AI',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => VocabularyGenerateScreen(topic: widget.topic),
+                      ),
+                    );
+                  },
+                ),
               IconButton(
                 icon: Icon(
                   _isGridView ? Icons.view_list : Icons.grid_view,
