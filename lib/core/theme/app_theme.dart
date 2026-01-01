@@ -6,6 +6,31 @@ class AppTheme {
   // Private constructor để prevent instantiation
   AppTheme._();
 
+  // Helper methods for adaptive colors
+  static Color surfaceColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF1E1E1E)
+        : Colors.white;
+  }
+
+  static Color textPrimaryColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFE3E3E3)
+        : textDark;
+  }
+
+  static Color textSecondaryColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFB0B0B0)
+        : textGrey;
+  }
+
+  static Color backgroundPaleColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF121212)
+        : paleBlue;
+  }
+
   // Định nghĩa màu sắc chủ đạo - Gen Z & Kid Friendly
   static const Color primaryBlue = Color(0xFF5EB1FF); // Softer, brighter blue
   static const Color lightBlue = Color(0xFF96D4FF); // Very light blue

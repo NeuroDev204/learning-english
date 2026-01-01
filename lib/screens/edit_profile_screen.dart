@@ -8,6 +8,7 @@ import '../features/auth/services/user_profile_service.dart';
 import '../features/auth/services/avatar_upload_service.dart';
 import '../features/auth/services/pin_security_service.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/theme_provider.dart';
 import 'pin_setup_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -793,12 +794,17 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             icon: Icons.dark_mode_outlined,
             title: 'Dark Mode',
             subtitle: 'Switch to dark theme',
-            trailing: Switch(
-              value: _darkModeEnabled,
-              onChanged: (value) {
-                setState(() => _darkModeEnabled = value);
+            trailing: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return Switch(
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) {
+                    themeProvider.toggleTheme();
+                    setState(() => _darkModeEnabled = value);
+                  },
+                  activeTrackColor: AppTheme.primaryBlue,
+                );
               },
-              activeTrackColor: AppTheme.primaryBlue,
             ),
           ),
 

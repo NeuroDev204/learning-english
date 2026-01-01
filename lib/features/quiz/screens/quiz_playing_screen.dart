@@ -422,7 +422,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
                       childAspectRatio:
-                          3.0, // Giảm từ 3.2 để đáp án cao hơn, dễ nhìn hơn
+                          2.2, // Giảm xuống 2.2 để đáp án cao hơn, hiển thị tốt trên mobile
                     ),
                     itemCount: question.options.length,
                     itemBuilder: (context, i) {

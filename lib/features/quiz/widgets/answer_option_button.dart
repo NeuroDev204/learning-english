@@ -6,7 +6,7 @@ class AnswerOptionButton extends StatelessWidget {
   final String text;
   final bool? isCorrect;
   final bool isSelected;
-  final VoidCallback? onTap;  
+  final VoidCallback? onTap;
 
   const AnswerOptionButton({
     super.key,
@@ -14,7 +14,7 @@ class AnswerOptionButton extends StatelessWidget {
     required this.text,
     this.isCorrect,
     required this.isSelected,
-    this.onTap, 
+    this.onTap,
   });
 
   @override
@@ -52,7 +52,7 @@ class AnswerOptionButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(24),
@@ -74,8 +74,8 @@ class AnswerOptionButton extends StatelessWidget {
           children: [
             // Label với background rõ ràng hơn
             Container(
-              width: 44,
-              height: 44,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: isCorrect == true
                     ? AppTheme.successGreen.withValues(alpha: 0.2)
@@ -94,7 +94,7 @@ class AnswerOptionButton extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: isCorrect == true
                         ? AppTheme.successGreen
@@ -107,12 +107,12 @@ class AnswerOptionButton extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 text,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: isCorrect != null || isSelected
                       ? FontWeight.bold
                       : FontWeight.w600,

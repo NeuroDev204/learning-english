@@ -11,6 +11,7 @@ import 'features/exam/providers/exam_provider.dart';
 import 'features/exam/providers/exam_timer_provider.dart';
 import 'screens/auth_wrapper.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/dashboard/services/dashboard_cache.dart';
 import 'shared/services/notification_service_factory.dart';
 
@@ -58,6 +59,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // Theme Provider for dark/light mode
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         // Auth Service with Firestore integration
         ChangeNotifierProvider(create: (_) => AuthSetup.createAuthService()),
         // User Profile Service for editing profile
@@ -68,11 +71,18 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ExamProvider()),
         ChangeNotifierProvider(create: (_) => ExamTimerProvider()),
       ],
-      child: MaterialApp(
-        title: 'Learn English',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: const AuthWrapper(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            title: 'Learn English',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode:
+                themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            home: const AuthWrapper(),
+          );
+        },
       ),
     );
   }
