@@ -17,7 +17,7 @@ class LeaderboardScreen extends StatefulWidget {
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
   final LeaderboardService _service = LeaderboardService();
-  
+
   LeaderboardPeriod _selectedPeriod = LeaderboardPeriod.allTime;
   LeaderboardCriteria _selectedCriteria = LeaderboardCriteria.totalXP;
   List<LeaderboardEntry> _leaderboard = [];
@@ -85,14 +85,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Bảng xếp hạng',
           style: TextStyle(
-            color: AppTheme.textDark,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -173,12 +173,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
                         // Leaderboard list (từ vị trí thứ 4 trở đi)
                         if (_leaderboard.length > 3) ...[
-                          const Text(
+                          Text(
                             'Bảng xếp hạng',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.textDark,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -186,8 +186,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                             children: _leaderboard.skip(3).map((entry) {
                               return LeaderboardItemWidget(
                                 entry: entry,
-                                isCurrentUser: entry.userId ==
-                                    _currentUserEntry?.userId,
+                                isCurrentUser:
+                                    entry.userId == _currentUserEntry?.userId,
                                 criteria: _selectedCriteria,
                                 period: _selectedPeriod,
                               );

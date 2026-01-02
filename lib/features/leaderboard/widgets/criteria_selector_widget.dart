@@ -18,7 +18,7 @@ class CriteriaSelectorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Danh sách criteria theo period
     List<LeaderboardCriteria> availableCriteria;
-    
+
     if (period == LeaderboardPeriod.allTime) {
       availableCriteria = [
         LeaderboardCriteria.totalXP,
@@ -45,20 +45,21 @@ class CriteriaSelectorWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.paleBlue,
+        color: Theme.of(context).colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: availableCriteria.map((criteria) {
           return Expanded(
-            child: _buildCriteriaButton(criteria),
+            child: _buildCriteriaButton(context, criteria),
           );
         }).toList(),
       ),
     );
   }
 
-  Widget _buildCriteriaButton(LeaderboardCriteria criteria) {
+  Widget _buildCriteriaButton(
+      BuildContext context, LeaderboardCriteria criteria) {
     final isSelected = selectedCriteria == criteria;
     final label = _getCriteriaLabel(criteria);
     final emoji = _getCriteriaEmoji(criteria);
@@ -69,7 +70,9 @@ class CriteriaSelectorWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         margin: const EdgeInsets.symmetric(horizontal: 2),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected
+              ? Theme.of(context).colorScheme.surface
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           boxShadow: isSelected
               ? [
@@ -96,7 +99,7 @@ class CriteriaSelectorWidget extends StatelessWidget {
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 color: isSelected
                     ? AppTheme.primaryBlue
-                    : AppTheme.textGrey,
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               ),
               textAlign: TextAlign.center,
               maxLines: 2,

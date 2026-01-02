@@ -17,33 +17,39 @@ class PeriodSelectorWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.paleBlue,
+        color: Theme.of(context).colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Expanded(
-            child: _buildPeriodButton('Tất cả', LeaderboardPeriod.allTime),
+            child: _buildPeriodButton(
+                context, 'Tất cả', LeaderboardPeriod.allTime),
           ),
           Expanded(
-            child: _buildPeriodButton('Tuần', LeaderboardPeriod.weekly),
+            child:
+                _buildPeriodButton(context, 'Tuần', LeaderboardPeriod.weekly),
           ),
           Expanded(
-            child: _buildPeriodButton('Tháng', LeaderboardPeriod.monthly),
+            child:
+                _buildPeriodButton(context, 'Tháng', LeaderboardPeriod.monthly),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPeriodButton(String label, LeaderboardPeriod period) {
+  Widget _buildPeriodButton(
+      BuildContext context, String label, LeaderboardPeriod period) {
     final isSelected = selectedPeriod == period;
     return GestureDetector(
       onTap: () => onPeriodChanged(period),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected
+              ? Theme.of(context).colorScheme.surface
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           boxShadow: isSelected
               ? [
@@ -63,7 +69,7 @@ class PeriodSelectorWidget extends StatelessWidget {
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               color: isSelected
                   ? AppTheme.primaryBlue
-                  : AppTheme.textGrey,
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
         ),

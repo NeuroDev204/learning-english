@@ -26,7 +26,7 @@ class TopThreeWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -38,12 +38,12 @@ class TopThreeWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             '🏆 Top 3',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 20),
@@ -148,7 +148,7 @@ class TopThreeWidget extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: color,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -159,7 +159,7 @@ class TopThreeWidget extends StatelessWidget {
           displayValue,
           style: TextStyle(
             fontSize: 11,
-            color: AppTheme.textGrey,
+            color: color,
             fontWeight: FontWeight.w600,
           ),
         ),

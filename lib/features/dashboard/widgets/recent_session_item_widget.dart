@@ -13,16 +13,15 @@ class RecentSessionItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final answeredCount = session.answers
-        .where((a) => a.userAnswer.isNotEmpty)
-        .length;
+    final answeredCount =
+        session.answers.where((a) => a.userAnswer.isNotEmpty).length;
     final correctCount = session.correctCount;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -41,15 +40,16 @@ class RecentSessionItemWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   session.topicName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -70,17 +70,18 @@ class RecentSessionItemWidget extends StatelessWidget {
             DateFormat('dd/MM/yyyy HH:mm').format(session.playedAt),
             style: TextStyle(
               fontSize: 12,
-              color: AppTheme.textGrey,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStat('📚', '$answeredCount', 'Từ học'),
-              _buildStat('✅', '$correctCount', 'Đúng'),
-              _buildStat('📊', '${session.scorePercentage}%', 'Chính xác'),
-              _buildStat('⭐', '+${session.xpEarned}', 'XP'),
+              _buildStat(context, '📚', '$answeredCount', 'Từ học'),
+              _buildStat(context, '✅', '$correctCount', 'Đúng'),
+              _buildStat(
+                  context, '📊', '${session.scorePercentage}%', 'Chính xác'),
+              _buildStat(context, '⭐', '+${session.xpEarned}', 'XP'),
             ],
           ),
         ],
@@ -88,24 +89,25 @@ class RecentSessionItemWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStat(String emoji, String value, String label) {
+  Widget _buildStat(
+      BuildContext context, String emoji, String value, String label) {
     return Column(
       children: [
         Text(emoji, style: const TextStyle(fontSize: 20)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Text(
           label,
           style: TextStyle(
             fontSize: 10,
-            color: AppTheme.textGrey,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
         ),
       ],

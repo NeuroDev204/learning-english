@@ -19,25 +19,34 @@ class QuestionCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         children: [
           Text(
             'Câu $currentQuestion/$totalQuestions',
-            style: const TextStyle(fontSize: 16, color: AppTheme.textGrey, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 20),
           Text(
             question.type == QuestionType.wordToMeaning
                 ? 'Nghĩa của từ này là gì?'
                 : 'Từ tiếng Anh của nghĩa này là gì?',
-            style: const TextStyle(fontSize: 20, color: AppTheme.textDark),
+            style: TextStyle(
+                fontSize: 20, color: Theme.of(context).colorScheme.onSurface),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
           Text(
-            question.type == QuestionType.wordToMeaning ? question.vocabulary.word : question.vocabulary.meaning,
-            style: const TextStyle(fontSize: 38, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+            question.type == QuestionType.wordToMeaning
+                ? question.vocabulary.word
+                : question.vocabulary.meaning,
+            style: const TextStyle(
+                fontSize: 38,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.primaryBlue),
             textAlign: TextAlign.center,
           ),
           if (question.type == QuestionType.wordToMeaning)
@@ -45,7 +54,13 @@ class QuestionCard extends StatelessWidget {
               padding: const EdgeInsets.only(top: 16),
               child: Text(
                 '/${question.vocabulary.pronunciation}/',
-                style: const TextStyle(fontSize: 22, color: AppTheme.textGrey, fontStyle: FontStyle.italic),
+                style: TextStyle(
+                    fontSize: 22,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                    fontStyle: FontStyle.italic),
               ),
             ),
         ],

@@ -20,7 +20,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final DashboardService _dashboardService = DashboardService();
   final DashboardCache _cache = DashboardCache();
-  
+
   DashboardStats? _stats;
   List<ChartDataPoint> _chartDataPoints = [];
   List<QuizSession> _recentSessions = [];
@@ -98,14 +98,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Dashboard',
           style: TextStyle(
-            color: AppTheme.textDark,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -152,16 +152,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Streak Widget
-                        if (_stats != null) StreakWidget(streak: _stats!.currentStreak),
+                        if (_stats != null)
+                          StreakWidget(streak: _stats!.currentStreak),
                         const SizedBox(height: 20),
 
                         // Stats Cards - Số từ học
-                        const Text(
+                        Text(
                           'Số từ học',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textDark,
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -201,7 +202,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         // Biểu đồ XP
                         if (_chartDataPoints.isNotEmpty)
                           BarChartWidget(
-                            values: _chartDataPoints.map((dp) => dp.xp.toDouble()).toList(),
+                            values: _chartDataPoints
+                                .map((dp) => dp.xp.toDouble())
+                                .toList(),
                             title: 'XP theo thời gian (7 ngày)',
                             emoji: '⭐',
                             color: AppTheme.warningYellow,
@@ -212,7 +215,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         // Biểu đồ Số từ học
                         if (_chartDataPoints.isNotEmpty)
                           BarChartWidget(
-                            values: _chartDataPoints.map((dp) => dp.wordsLearned.toDouble()).toList(),
+                            values: _chartDataPoints
+                                .map((dp) => dp.wordsLearned.toDouble())
+                                .toList(),
                             title: 'Số từ học (7 ngày)',
                             emoji: '📚',
                             color: AppTheme.primaryBlue,
@@ -223,7 +228,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         // Biểu đồ % chính xác
                         if (_chartDataPoints.isNotEmpty)
                           BarChartWidget(
-                            values: _chartDataPoints.map((dp) => dp.accuracy).toList(),
+                            values: _chartDataPoints
+                                .map((dp) => dp.accuracy)
+                                .toList(),
                             title: '% Chính xác (7 ngày)',
                             emoji: '📊',
                             color: AppTheme.successGreen,
@@ -232,12 +239,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(height: 24),
 
                         // Thống kê tổng quan
-                        const Text(
+                        Text(
                           'Thống kê tổng quan',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textDark,
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -257,7 +264,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 child: StatCardWidget(
                                   emoji: '📊',
                                   label: 'Chính xác',
-                                  value: '${_stats!.averageAccuracy.toStringAsFixed(1)}%',
+                                  value:
+                                      '${_stats!.averageAccuracy.toStringAsFixed(1)}%',
                                   color: AppTheme.successGreen,
                                 ),
                               ),
@@ -275,12 +283,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(height: 24),
 
                         // Danh sách session gần đây
-                        const Text(
+                        Text(
                           'Bài làm gần đây',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textDark,
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -288,13 +296,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ? Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Center(
                                   child: Text(
                                     'Chưa có bài làm nào',
-                                    style: TextStyle(color: AppTheme.textGrey),
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.6)),
                                   ),
                                 ),
                               )

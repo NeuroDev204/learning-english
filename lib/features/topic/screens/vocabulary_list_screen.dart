@@ -32,9 +32,9 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
         final isAdmin = role == 'admin';
 
         return Scaffold(
-          backgroundColor: AppTheme.paleBlue,
+          backgroundColor: Theme.of(context).colorScheme.background,
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
@@ -45,16 +45,16 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
               children: [
                 Text(
                   widget.topic.name,
-                  style: const TextStyle(
-                    color: AppTheme.textDark,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   'Vocabulary List',
-                  style: const TextStyle(
-                    color: AppTheme.textGrey,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontSize: 12,
                   ),
                 ),
@@ -63,13 +63,15 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
             actions: [
               if (isAdmin)
                 IconButton(
-                  icon: const Icon(Icons.auto_awesome, color: AppTheme.primaryBlue),
+                  icon: const Icon(Icons.auto_awesome,
+                      color: AppTheme.primaryBlue),
                   tooltip: 'Generate với AI',
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => VocabularyGenerateScreen(topic: widget.topic),
+                        builder: (_) =>
+                            VocabularyGenerateScreen(topic: widget.topic),
                       ),
                     );
                   },
@@ -113,7 +115,7 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -179,7 +181,8 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => QuizConfigScreen(topic: widget.topic),
+                                  builder: (_) =>
+                                      QuizConfigScreen(topic: widget.topic),
                                 ),
                               );
                             },
@@ -200,7 +203,8 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
                               ),
                               minimumSize: const Size(double.infinity, 64),
                               elevation: 8,
-                              shadowColor: AppTheme.primaryBlue.withOpacity(0.3),
+                              shadowColor:
+                                  AppTheme.primaryBlue.withOpacity(0.3),
                             ),
                           ),
                         ),
@@ -332,27 +336,27 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
                   children: [
                     Text(
                       vocab.word,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '/${vocab.pronunciation}/',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: AppTheme.textGrey,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       vocab.meaning,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -457,10 +461,10 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
                   // Word
                   Text(
                     vocab.word,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

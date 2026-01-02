@@ -8,6 +8,7 @@ import '../features/auth/services/user_profile_service.dart';
 import '../features/auth/services/avatar_upload_service.dart';
 import '../features/auth/services/pin_security_service.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/theme_provider.dart';
 import 'pin_setup_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -580,7 +581,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.paleBlue,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -591,20 +592,23 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Email',
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppTheme.textGrey,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.6),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           user?.email ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.textDark,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -663,18 +667,21 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             const SizedBox(height: 24),
 
             // Learning Aim Section
-            const Text(
+            Text(
               'Learning Aim',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textDark,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'What\'s your main goal for learning English?',
-              style: TextStyle(fontSize: 13, color: AppTheme.textGrey),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -750,12 +757,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Preferences',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onBackground,
             ),
           ),
           const SizedBox(height: 20),
@@ -793,24 +800,29 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             icon: Icons.dark_mode_outlined,
             title: 'Dark Mode',
             subtitle: 'Switch to dark theme',
-            trailing: Switch(
-              value: _darkModeEnabled,
-              onChanged: (value) {
-                setState(() => _darkModeEnabled = value);
+            trailing: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return Switch(
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) {
+                    themeProvider.toggleTheme();
+                    setState(() => _darkModeEnabled = value);
+                  },
+                  activeTrackColor: AppTheme.primaryBlue,
+                );
               },
-              activeTrackColor: AppTheme.primaryBlue,
             ),
           ),
 
           const Divider(height: 32),
 
           // ==================== PIN SECURITY ====================
-          const Text(
+          Text(
             'Security',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onBackground,
             ),
           ),
           const SizedBox(height: 20),
@@ -861,12 +873,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
           const Divider(height: 32),
 
-          const Text(
+          Text(
             'Learning Goals',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onBackground,
             ),
           ),
           const SizedBox(height: 20),
@@ -875,7 +887,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.paleBlue,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -885,12 +897,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   children: [
                     const Icon(Icons.star, color: AppTheme.warningYellow),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'Daily XP Goal',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -926,12 +938,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
           const Divider(height: 32),
 
-          const Text(
+          Text(
             'Language',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onBackground,
             ),
           ),
           const SizedBox(height: 20),
@@ -979,9 +991,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+        ),
       ),
       child: Row(
         children: [
@@ -993,18 +1007,21 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textGrey,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
                   ),
                 ),
               ],
@@ -1027,10 +1044,14 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.paleBlue : Colors.white,
+          color: isSelected
+              ? AppTheme.primaryBlue.withOpacity(0.1)
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200,
+            color: isSelected
+                ? AppTheme.primaryBlue
+                : Theme.of(context).colorScheme.outline.withOpacity(0.2),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -1044,7 +1065,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? AppTheme.primaryBlue : AppTheme.textDark,
+                  color: isSelected
+                      ? AppTheme.primaryBlue
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1072,10 +1095,14 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.paleBlue : Colors.white,
+          color: isSelected
+              ? AppTheme.primaryBlue.withOpacity(0.1)
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200,
+            color: isSelected
+                ? AppTheme.primaryBlue
+                : Theme.of(context).colorScheme.outline.withOpacity(0.2),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -1086,12 +1113,14 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.primaryBlue.withOpacity(0.1)
-                    : Colors.grey.shade100,
+                    : Theme.of(context).colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade600,
+                color: isSelected
+                    ? AppTheme.primaryBlue
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 size: 24,
               ),
             ),
@@ -1106,16 +1135,20 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       fontSize: 16,
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color:
-                          isSelected ? AppTheme.primaryBlue : AppTheme.textDark,
+                      color: isSelected
+                          ? AppTheme.primaryBlue
+                          : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppTheme.textGrey,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6),
                     ),
                   ),
                 ],
