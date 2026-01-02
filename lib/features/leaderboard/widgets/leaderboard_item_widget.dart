@@ -22,6 +22,19 @@ class LeaderboardItemWidget extends StatelessWidget {
     final service = LeaderboardService();
     final displayValue = service.getDisplayValue(entry, criteria, period);
 
+    // Xác định giá trị Badge nhỏ dựa trên Period đang chọn
+    final badgeXP = period == LeaderboardPeriod.weekly
+        ? entry.weeklyXP
+        : (period == LeaderboardPeriod.monthly
+            ? entry.monthlyXP
+            : entry.totalXP);
+
+    final badgeStreak = period == LeaderboardPeriod.weekly
+        ? entry.weeklyStreakDays
+        : (period == LeaderboardPeriod.monthly
+            ? entry.monthlyStreakDays
+            : entry.currentStreak);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -184,9 +197,9 @@ class LeaderboardItemWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _buildStatBadge(context, '⭐', '${entry.totalXP}'),
+                    _buildStatBadge(context, '⭐', '$badgeXP'),
                     const SizedBox(width: 6),
-                    _buildStatBadge(context, '🔥', '${entry.currentStreak}'),
+                    _buildStatBadge(context, '🔥', '$badgeStreak'),
                   ],
                 ),
               ],
