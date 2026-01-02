@@ -86,9 +86,19 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+        Text(title,
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onBackground)),
         const SizedBox(height: 4),
-        Text(subtitle, style: const TextStyle(fontSize: 14, color: AppTheme.textGrey)),
+        Text(subtitle,
+            style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onBackground
+                    .withOpacity(0.6))),
         const SizedBox(height: 16),
         content,
         const SizedBox(height: 32),
@@ -104,14 +114,19 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           shape: BoxShape.circle,
-          border: Border.all(color: AppTheme.textGrey.withOpacity(0.3)),
+          border: Border.all(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2)),
+            BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2)),
           ],
         ),
-        child: Icon(icon, size: 24, color: AppTheme.textDark),
+        child: Icon(icon,
+            size: 24, color: Theme.of(context).colorScheme.onSurface),
       ),
     );
   }
@@ -127,12 +142,16 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
-        title: Text(widget.topic.name, style: const TextStyle(color: AppTheme.textDark)),
+        leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.pop(context)),
+        title: Text(widget.topic.name,
+            style:
+                TextStyle(color: Theme.of(context).colorScheme.onBackground)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -150,12 +169,19 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
                     child: ElevatedButton(
                       onPressed: () => setState(() => mode = 'quiz'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: mode == 'quiz' ? AppTheme.primaryBlue : Colors.white,
-                        foregroundColor: mode == 'quiz' ? Colors.white : AppTheme.textDark,
+                        backgroundColor: mode == 'quiz'
+                            ? AppTheme.primaryBlue
+                            : Theme.of(context).colorScheme.surface,
+                        foregroundColor: mode == 'quiz'
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.onSurface,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                       ),
-                      child: const Text('Trắc nghiệm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: const Text('Trắc nghiệm',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -163,12 +189,19 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
                     child: ElevatedButton(
                       onPressed: () => setState(() => mode = 'flashcard'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: mode == 'flashcard' ? AppTheme.primaryBlue : Colors.white,
-                        foregroundColor: mode == 'flashcard' ? Colors.white : AppTheme.textDark,
+                        backgroundColor: mode == 'flashcard'
+                            ? AppTheme.primaryBlue
+                            : Theme.of(context).colorScheme.surface,
+                        foregroundColor: mode == 'flashcard'
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.onSurface,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
                       ),
-                      child: const Text('Flashcard', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: const Text('Flashcard',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -197,7 +230,10 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
                     ),
                     Text(
                       '$questionCount câu hỏi',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryBlue),
                     ),
                   ],
                 ),
@@ -224,15 +260,20 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
                       child: TextField(
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold),
                         decoration: InputDecoration(
                           hintText: '$totalMinutes',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onChanged: (value) {
                           final newValue = int.tryParse(value);
-                          if (newValue != null && newValue >= 1 && newValue <= 60) {
+                          if (newValue != null &&
+                              newValue >= 1 &&
+                              newValue <= 60) {
                             setState(() {
                               totalMinutes = newValue;
                             });
@@ -264,11 +305,15 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
                 onPressed: mode == 'quiz' ? _startQuiz : _startFlashcard,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryBlue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(
                   mode == 'quiz' ? 'Bắt đầu trắc nghiệm' : 'Bắt đầu Flashcard',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ),
             ),

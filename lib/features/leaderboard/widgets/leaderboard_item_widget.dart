@@ -28,7 +28,7 @@ class LeaderboardItemWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: isCurrentUser
             ? AppTheme.primaryBlue.withOpacity(0.1)
-            : Colors.white,
+            : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: isCurrentUser
             ? Border.all(color: AppTheme.primaryBlue, width: 2)
@@ -69,7 +69,9 @@ class LeaderboardItemWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: entry.rank <= 3 ? Colors.white : AppTheme.textDark,
+                  color: entry.rank <= 3
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -133,7 +135,7 @@ class LeaderboardItemWidget extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: isCurrentUser
                               ? AppTheme.primaryBlue
-                              : AppTheme.textDark,
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -182,9 +184,9 @@ class LeaderboardItemWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _buildStatBadge('⭐', '${entry.totalXP}'),
+                    _buildStatBadge(context, '⭐', '${entry.totalXP}'),
                     const SizedBox(width: 6),
-                    _buildStatBadge('🔥', '${entry.currentStreak}'),
+                    _buildStatBadge(context, '🔥', '${entry.currentStreak}'),
                   ],
                 ),
               ],
@@ -195,7 +197,7 @@ class LeaderboardItemWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatBadge(String emoji, String value) {
+  Widget _buildStatBadge(BuildContext context, String emoji, String value) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -208,7 +210,7 @@ class LeaderboardItemWidget extends StatelessWidget {
           value,
           style: TextStyle(
             fontSize: 12,
-            color: AppTheme.textGrey,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontWeight: FontWeight.w600,
           ),
         ),

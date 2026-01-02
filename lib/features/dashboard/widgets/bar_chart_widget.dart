@@ -25,13 +25,15 @@ class BarChartWidget extends StatelessWidget {
         height: 200,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Center(
           child: Text(
             'Chưa có dữ liệu',
-            style: TextStyle(color: AppTheme.textGrey),
+            style: TextStyle(
+                color:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
           ),
         ),
       );
@@ -43,7 +45,7 @@ class BarChartWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -65,10 +67,10 @@ class BarChartWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textDark,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -105,7 +107,10 @@ class BarChartWidget extends StatelessWidget {
                           '${(index + 1)}',
                           style: TextStyle(
                             fontSize: 10,
-                            color: AppTheme.textGrey,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -132,7 +137,8 @@ class BarChartWidget extends StatelessWidget {
                 valueLabel,
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppTheme.textGrey,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ],

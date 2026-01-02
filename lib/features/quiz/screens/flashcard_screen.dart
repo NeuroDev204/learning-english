@@ -39,15 +39,18 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: AppTheme.textDark),
+          icon: Icon(Icons.close,
+              color: Theme.of(context).colorScheme.onBackground),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(widget.topic.name, style: const TextStyle(color: AppTheme.textDark)),
+        title: Text(widget.topic.name,
+            style:
+                TextStyle(color: Theme.of(context).colorScheme.onBackground)),
         centerTitle: true,
       ),
       body: _isLoading
@@ -60,10 +63,11 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                     LinearProgressIndicator(
                       value: (_currentIndex + 1) / _vocabList.length,
                       color: AppTheme.primaryBlue,
-                      backgroundColor: Colors.grey.shade300,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.surfaceVariant,
                       minHeight: 6,
                     ),
-                    
+
                     const SizedBox(height: 20),
 
                     // Nội dung Flashcard (Expanded để chiếm chỗ trống còn lại)
@@ -74,7 +78,8 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                           builder: (context, constraints) {
                             return Center(
                               child: SizedBox(
-                                height: constraints.maxHeight * 0.85, // Giới hạn chiều cao thẻ
+                                height: constraints.maxHeight *
+                                    0.85, // Giới hạn chiều cao thẻ
                                 width: double.infinity,
                                 child: FlashcardWidget(
                                   vocabulary: _vocabList[_currentIndex],
@@ -102,21 +107,24 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                             icon: const Icon(Icons.arrow_back),
                             label: const Text("Trước"),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.surface,
                               foregroundColor: AppTheme.primaryBlue,
                               elevation: 0,
-                              side: const BorderSide(color: AppTheme.primaryBlue),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              side:
+                                  const BorderSide(color: AppTheme.primaryBlue),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
                             ),
                           ),
 
                           // Số trang
                           Text(
                             '${_currentIndex + 1} / ${_vocabList.length}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.textDark,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
 
@@ -130,7 +138,8 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryBlue,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
                             ),
                           ),
                         ],

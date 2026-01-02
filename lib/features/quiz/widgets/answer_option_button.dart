@@ -19,9 +19,9 @@ class AnswerOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Colors.white;
+    Color backgroundColor = Theme.of(context).colorScheme.surface;
     Color borderColor = AppTheme.primaryBlue.withValues(alpha: 0.3);
-    Color textColor = AppTheme.textDark;
+    Color textColor = Theme.of(context).colorScheme.onSurface;
     IconData? icon;
     Color? iconColor;
 
@@ -44,7 +44,7 @@ class AnswerOptionButton extends StatelessWidget {
       // Đã chọn nhưng chưa hiển thị kết quả
       borderColor = AppTheme.accentYellow;
       backgroundColor = AppTheme.accentYellow.withValues(alpha: 0.2);
-      textColor = AppTheme.textDark;
+      textColor = Theme.of(context).colorScheme.onSurface;
     }
 
     return GestureDetector(

@@ -433,9 +433,11 @@ class AppTheme {
   }
 
   /// Container với background trắng và shadow nhẹ
-  static BoxDecoration whiteCardDecoration() {
+  static BoxDecoration whiteCardDecoration({BuildContext? context}) {
     return BoxDecoration(
-      color: Colors.white,
+      color: context != null
+          ? Theme.of(context).colorScheme.surface
+          : Colors.white,
       borderRadius: BorderRadius.circular(24),
       boxShadow: [
         BoxShadow(

@@ -5,7 +5,7 @@ import 'package:learn_english/features/topic/models/topic.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:google_fonts/google_fonts.dart'; 
+import 'package:google_fonts/google_fonts.dart';
 
 class QuizResultPdfScreen extends StatelessWidget {
   final Topic topic;
@@ -30,6 +30,7 @@ class QuizResultPdfScreen extends StatelessWidget {
   void _showExportOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -38,15 +39,33 @@ class QuizResultPdfScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Chọn kiểu xuất PDF',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 24),
             ListTile(
-              leading: const Icon(Icons.assignment_turned_in, color: AppTheme.successGreen, size: 32),
-              title: const Text('Xuất kết quả bài làm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Hiển thị đáp án đúng, đáp án bạn chọn, điểm số'),
+              leading: const Icon(Icons.assignment_turned_in,
+                  color: AppTheme.successGreen, size: 32),
+              title: Text(
+                'Xuất kết quả bài làm',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              subtitle: Text(
+                'Hiển thị đáp án đúng, đáp án bạn chọn, điểm số',
+                style: TextStyle(
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
               onTap: () {
                 Navigator.pop(ctx);
                 _generatePdf(context, showAnswers: true);
@@ -54,9 +73,23 @@ class QuizResultPdfScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             ListTile(
-              leading: const Icon(Icons.quiz, color: AppTheme.primaryBlue, size: 32),
-              title: const Text('Xuất đề thi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Chỉ hiển thị câu hỏi và 4 đáp án (không lộ đáp án đúng)'),
+              leading:
+                  const Icon(Icons.quiz, color: AppTheme.primaryBlue, size: 32),
+              title: Text(
+                'Xuất đề thi',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              subtitle: Text(
+                'Chỉ hiển thị câu hỏi và 4 đáp án (không lộ đáp án đúng)',
+                style: TextStyle(
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
               onTap: () {
                 Navigator.pop(ctx);
                 _generatePdf(context, showAnswers: false);
@@ -69,7 +102,8 @@ class QuizResultPdfScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _generatePdf(BuildContext context, {required bool showAnswers}) async {
+  Future<void> _generatePdf(BuildContext context,
+      {required bool showAnswers}) async {
     final pdf = pw.Document();
 
     // Tải font hỗ trợ tiếng Việt
@@ -85,7 +119,9 @@ class QuizResultPdfScreen extends StatelessWidget {
         ),
         header: (_) => pw.Center(
           child: pw.Text(
-            showAnswers ? 'KẾT QUẢ BÀI LÀM - ${topic.name}' : 'ĐỀ THI TRẮC NGHIỆM - ${topic.name}',
+            showAnswers
+                ? 'KẾT QUẢ BÀI LÀM - ${topic.name}'
+                : 'ĐỀ THI TRẮC NGHIỆM - ${topic.name}',
             style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
           ),
         ),
@@ -102,24 +138,30 @@ class QuizResultPdfScreen extends StatelessWidget {
           ...questions.asMap().entries.map((e) {
             final index = e.key + 1;
             final q = e.value;
-            final userAns = e.key < userAnswers.length ? userAnswers[e.key] : '';
+            final userAns =
+                e.key < userAnswers.length ? userAnswers[e.key] : '';
 
             return pw.Container(
               margin: const pw.EdgeInsets.only(bottom: 20),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('Câu $index:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  pw.Text('Câu $index:',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                   pw.SizedBox(height: 8),
                   pw.Text(
-                    q.type == QuestionType.wordToMeaning ? q.vocabulary.word : q.vocabulary.meaning,
-                    style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+                    q.type == QuestionType.wordToMeaning
+                        ? q.vocabulary.word
+                        : q.vocabulary.meaning,
+                    style: pw.TextStyle(
+                        fontSize: 16, fontWeight: pw.FontWeight.bold),
                   ),
                   // Sửa lỗi ở đây: Bỏ const vì có interpolation động
                   if (q.type == QuestionType.wordToMeaning)
                     pw.Text(
                       '/${q.vocabulary.pronunciation}/',
-                      style: pw.TextStyle(fontStyle: pw.FontStyle.italic), // Không dùng const
+                      style: pw.TextStyle(
+                          fontStyle: pw.FontStyle.italic), // Không dùng const
                     ),
                   pw.SizedBox(height: 12),
                   ...q.options.asMap().entries.map((opt) {
@@ -143,19 +185,26 @@ class QuizResultPdfScreen extends StatelessWidget {
 
                     return pw.Container(
                       margin: const pw.EdgeInsets.only(bottom: 6),
-                      padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: pw.BoxDecoration(
                         color: bgColor,
                         border: pw.Border.all(color: borderColor),
                       ),
                       child: pw.Row(
                         children: [
-                          pw.Text('$label. ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          pw.Text('$label. ',
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                           pw.Expanded(child: pw.Text(optText)),
                           if (showAnswers && isCorrectAns)
-                            pw.Text(' ✓', style: const pw.TextStyle(color: PdfColors.green)),
+                            pw.Text(' ✓',
+                                style:
+                                    const pw.TextStyle(color: PdfColors.green)),
                           if (showAnswers && isUserChoice && !isCorrectAns)
-                            pw.Text(' ✗', style: const pw.TextStyle(color: PdfColors.red)),
+                            pw.Text(' ✗',
+                                style:
+                                    const pw.TextStyle(color: PdfColors.red)),
                         ],
                       ),
                     );
@@ -184,12 +233,16 @@ class QuizResultPdfScreen extends StatelessWidget {
   }
 
   pw.Widget _buildResultStats() {
-    final percentage = totalQuestions > 0 ? (correctCount / totalQuestions * 100).round() : 0;
+    final percentage =
+        totalQuestions > 0 ? (correctCount / totalQuestions * 100).round() : 0;
     return pw.Column(
       children: [
-        pw.Text('Điểm số: $correctCount/$totalQuestions ($percentage%)', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16)),
-        pw.Text('XP nhận được: +$xpEarned', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-        pw.Text('Thời gian: ${durationSeconds ~/ 60} phút ${durationSeconds % 60} giây'),
+        pw.Text('Điểm số: $correctCount/$totalQuestions ($percentage%)',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16)),
+        pw.Text('XP nhận được: +$xpEarned',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+            'Thời gian: ${durationSeconds ~/ 60} phút ${durationSeconds % 60} giây'),
         pw.SizedBox(height: 20),
       ],
     );
@@ -198,16 +251,16 @@ class QuizResultPdfScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: const Text('Xuất kết quả PDF'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.textDark,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        title: Text(
+          'Xuất kết quả PDF',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        elevation: 0,
       ),
       body: Center(
         child: Padding(
@@ -215,17 +268,27 @@ class QuizResultPdfScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.picture_as_pdf, size: 80, color: AppTheme.primaryBlue),
+              const Icon(Icons.picture_as_pdf,
+                  size: 80, color: AppTheme.primaryBlue),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Chọn kiểu xuất PDF',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Bạn có thể xuất kết quả bài làm hoặc chỉ đề thi.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.textGrey),
+                style: TextStyle(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.6),
+                ),
               ),
               const SizedBox(height: 40),
               SizedBox(
@@ -234,11 +297,14 @@ class QuizResultPdfScreen extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => _showExportOptions(context),
                   icon: const Icon(Icons.print),
-                  label: const Text('Chọn kiểu xuất', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  label: const Text('Chọn kiểu xuất',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryBlue,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ),

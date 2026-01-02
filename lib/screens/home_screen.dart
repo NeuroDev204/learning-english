@@ -65,7 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
         userData.profile,
       );
 
-      // Reload user data để cập nhật UI
       debugPrint('🔍 _checkDailyReset - Before final reload');
       await authService.reloadUser();
       debugPrint(
@@ -116,8 +115,6 @@ class _HomeScreenState extends State<HomeScreen> {
       await authService.signOut();
     }
   }
-
-  // ==================== BUILD ====================
 
   @override
   Widget build(BuildContext context) {

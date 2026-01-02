@@ -200,7 +200,7 @@ class _NotificationSettingsScreenState
   Widget _buildMainToggle() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Row(
         children: [
           Container(
@@ -230,7 +230,7 @@ class _NotificationSettingsScreenState
                   'Bật nhắc nhở học tập',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
                 const SizedBox(height: 4),
@@ -267,7 +267,7 @@ class _NotificationSettingsScreenState
   Widget _buildTimeSlotsSection() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -279,7 +279,7 @@ class _NotificationSettingsScreenState
                 'Khung giờ nhắc nhở',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
             ],
@@ -353,7 +353,7 @@ class _NotificationSettingsScreenState
               slot.enabled ? 'Đang bật' : 'Tắt',
               style: TextStyle(
                 color: slot.enabled
-                    ? AppTheme.textDark
+                    ? Theme.of(context).colorScheme.onSurface
                     : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               ),
             ),
@@ -378,7 +378,7 @@ class _NotificationSettingsScreenState
   Widget _buildCustomMessageSection() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -390,7 +390,7 @@ class _NotificationSettingsScreenState
                 'Nội dung thông báo',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
             ],
@@ -403,14 +403,15 @@ class _NotificationSettingsScreenState
             decoration: InputDecoration(
               hintText: 'Nhập nội dung thông báo...',
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: Theme.of(context).colorScheme.surfaceVariant,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.outline),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -448,7 +449,7 @@ class _NotificationSettingsScreenState
   Widget _buildSoundVibrationSection() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -460,7 +461,7 @@ class _NotificationSettingsScreenState
                 'Tùy chọn nâng cao',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
             ],
@@ -521,7 +522,7 @@ class _NotificationSettingsScreenState
                   'Thông báo đã được lên lịch',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
               ),

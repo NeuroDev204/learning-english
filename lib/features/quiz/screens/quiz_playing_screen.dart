@@ -208,9 +208,9 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        backgroundColor: AppTheme.paleBlue,
-        body: LoadingQuizAnimation(),
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: const LoadingQuizAnimation(),
       );
     }
 
@@ -220,9 +220,9 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
     final timeProgress = _remainingSeconds / totalSeconds;
 
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.paleBlue,
+        backgroundColor: Theme.of(context).colorScheme.background,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -237,7 +237,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -247,11 +247,11 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                   ),
                 ],
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
                   '×',
                   style: TextStyle(
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -266,7 +266,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -294,7 +294,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                       fontWeight: FontWeight.bold,
                       color: _remainingSeconds <= 10
                           ? AppTheme.errorRed
-                          : AppTheme.textDark,
+                          : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -309,7 +309,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                 borderRadius: BorderRadius.circular(2),
                 child: LinearProgressIndicator(
                   value: timeProgress,
-                  backgroundColor: Colors.grey.shade200,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                   valueColor: AlwaysStoppedAnimation<Color>(
                     _remainingSeconds <= 10
                         ? AppTheme.errorRed
@@ -352,7 +352,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -371,7 +371,10 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                               'Tiến độ',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: AppTheme.textGrey,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -391,7 +394,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                           child: LinearProgressIndicator(
                             value: progress,
                             minHeight: 8,
-                            backgroundColor: AppTheme.paleBlue,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surfaceVariant,
                             valueColor: const AlwaysStoppedAnimation<Color>(
                               AppTheme.primaryBlue,
                             ),
@@ -439,7 +443,7 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
           Container(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(30)),
               boxShadow: [
@@ -462,7 +466,10 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                         'Chọn câu hỏi',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.textGrey,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.6),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -491,11 +498,13 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                                           ? AppTheme.successGreen
                                           : answered
                                               ? AppTheme.errorRed
-                                              : Colors.grey.shade300,
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceVariant,
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: currentIndex == index
-                                        ? Colors.white
+                                        ? Theme.of(context).colorScheme.surface
                                         : Colors.transparent,
                                     width: 3,
                                   ),
@@ -516,7 +525,9 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                                     style: TextStyle(
                                       color: currentIndex == index
                                           ? Colors.white
-                                          : AppTheme.textDark,
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
@@ -545,7 +556,8 @@ class _QuizPlayingScreenState extends State<QuizPlayingScreen> {
                         icon: const Icon(Icons.arrow_back, size: 20),
                         label: const Text('Trước'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
                           foregroundColor: AppTheme.primaryBlue,
                           disabledBackgroundColor: Colors.grey.shade100,
                           disabledForegroundColor: Colors.grey.shade400,
