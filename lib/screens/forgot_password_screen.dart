@@ -78,9 +78,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
@@ -88,7 +88,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
         title: Text(
           'Reset Password',
-          style: TextStyle(color: AppTheme.textDark),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
       body: SafeArea(
@@ -115,7 +115,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: AppTheme.paleBlue,
+                color: Theme.of(context).colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Icon(
@@ -130,9 +130,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Text(
             'Forgot Password?',
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -140,9 +140,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Text(
             'No worries! Enter your email and we\'ll send you a reset link',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppTheme.textGrey,
-              height: 1.5,
-            ),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.6),
+                  height: 1.5,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 40),
@@ -175,9 +178,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             icon: Icons.info_outline,
             text:
                 'Check your spam folder if you don\'t see the email in your inbox',
-            backgroundColor: AppTheme.paleBlue,
+            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
             iconColor: AppTheme.primaryBlue,
-            textColor: AppTheme.textGrey,
+            textColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
           const SizedBox(height: 32),
 
@@ -224,7 +227,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: Color(0xFFE8F8F0),
+              color: AppTheme.successGreen.withOpacity(0.1),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Icon(
@@ -239,9 +242,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         Text(
           'Check Your Email',
           style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.textDark,
-          ),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
@@ -250,7 +253,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           'We\'ve sent a password reset link to:',
           style: Theme.of(
             context,
-          ).textTheme.bodyLarge?.copyWith(color: AppTheme.textGrey),
+          ).textTheme.bodyLarge?.copyWith(
+                color:
+                    Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
@@ -258,9 +264,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         Text(
           _emailController.text,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryBlue,
-          ),
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryBlue,
+              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 32),
@@ -269,7 +275,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         Container(
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.paleBlue,
+            color: Theme.of(context).colorScheme.surfaceVariant,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -283,7 +289,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     'Next Steps',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                     ),
                   ),
@@ -358,7 +364,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 text,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppTheme.textGrey,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                   height: 1.4,
                 ),
               ),

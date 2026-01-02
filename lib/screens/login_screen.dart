@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Stack(
         children: [
           // Decorative floating elements
@@ -164,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 140,
                               height: 140,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(36),
                                 border: Border.all(
                                   color: AppTheme.primaryBlue,
@@ -205,11 +205,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Title
                       Text(
                         'Welcome Back!',
-                        style:
-                            Theme.of(context).textTheme.displaySmall?.copyWith(
-                                  color: AppTheme.textDark,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .displaySmall
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fontWeight: FontWeight.bold,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
@@ -217,7 +219,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         'Sign in to continue learning',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppTheme.textGrey,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground
+                                  .withOpacity(0.6),
                             ),
                         textAlign: TextAlign.center,
                       ),
@@ -341,7 +346,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Text(
                               'or',
                               style: TextStyle(
-                                color: AppTheme.textGrey,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
                                 fontSize: 14,
                               ),
                             ),
@@ -376,7 +384,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                             : const Text('Continue with Google'),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.textDark,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onSurface,
                           side: BorderSide(
                             color: Theme.of(context)
                                 .colorScheme
@@ -395,7 +404,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppTheme.paleBlue,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -404,7 +413,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               "Don't have an account? ",
                               style: TextStyle(
-                                color: AppTheme.textGrey,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
                                 fontSize: 14,
                               ),
                             ),
@@ -437,7 +449,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: 'Learning a new language opens new worlds! 🌍',
                         backgroundColor: Theme.of(context).colorScheme.surface,
                         iconColor: AppTheme.accentYellow,
-                        textColor: AppTheme.textGrey,
+                        textColor: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
                       ),
                     ],
                   ),

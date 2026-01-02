@@ -93,7 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.paleBlue,
+                color: Theme.of(context).colorScheme.surfaceVariant,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -110,7 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textDark,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -176,7 +176,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.paleBlue,
+                color: Theme.of(context).colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -194,7 +194,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         'Verification Email Sent',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.textDark,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 14,
                         ),
                       ),
@@ -230,7 +230,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
               },
               child: Text(
                 'Back to Login',
-                style: TextStyle(color: AppTheme.textGrey),
+                style: TextStyle(
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
             ),
           ],
@@ -249,7 +252,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: 13, color: AppTheme.textGrey),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
           ),
         ],
@@ -283,7 +289,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: AppTheme.paleBlue,
+                      color: Theme.of(context).colorScheme.surfaceVariant,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
@@ -298,7 +304,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Text(
                   'Create Account',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).colorScheme.onBackground,
                         fontWeight: FontWeight.bold,
                       ),
                   textAlign: TextAlign.center,
@@ -309,7 +315,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   'Start your learning journey today',
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyLarge?.copyWith(color: AppTheme.textGrey),
+                  ).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onBackground
+                            .withOpacity(0.6),
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -440,7 +451,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.paleBlue,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -458,7 +469,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             'Password Requirements',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.textDark,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 13,
                             ),
                           ),
@@ -499,7 +510,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.paleBlue,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -508,7 +519,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Text(
                         'Already have an account? ',
                         style: TextStyle(
-                          color: AppTheme.textGrey,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.6),
                           fontSize: 14,
                         ),
                       ),
@@ -545,7 +559,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
             color: AppTheme.primaryBlue,
           ),
           const SizedBox(width: 8),
-          Text(text, style: TextStyle(fontSize: 12, color: AppTheme.textGrey)),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            ),
+          ),
         ],
       ),
     );
