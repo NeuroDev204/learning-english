@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Stack(
         children: [
           // Decorative floating elements
@@ -164,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 140,
                               height: 140,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(36),
                                 border: Border.all(
                                   color: AppTheme.primaryBlue,
@@ -205,11 +205,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Title
                       Text(
                         'Welcome Back!',
-                        style:
-                            Theme.of(context).textTheme.displaySmall?.copyWith(
-                                  color: AppTheme.textDark,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .displaySmall
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                              fontWeight: FontWeight.bold,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
@@ -217,7 +219,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         'Sign in to continue learning',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppTheme.textGrey,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground
+                                  .withOpacity(0.6),
                             ),
                         textAlign: TextAlign.center,
                       ),
@@ -341,7 +346,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Text(
                               'or',
                               style: TextStyle(
-                                color: AppTheme.textGrey,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
                                 fontSize: 14,
                               ),
                             ),
@@ -356,94 +364,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Google Sign-In Button - Prominent Style
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF4285F4), // Google Blue
-                              Color(0xFF34A853), // Google Green
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
+                      // Google Sign-In Button
+                      OutlinedButton.icon(
+                        onPressed:
+                            _isGoogleLoading ? null : _handleGoogleSignIn,
+                        icon: _isGoogleLoading
+                            ? const SizedBox.shrink()
+                            : const Text('🔵', style: TextStyle(fontSize: 20)),
+                        label: _isGoogleLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.primaryBlue,
+                                  ),
+                                ),
+                              )
+                            : const Text('Continue with Google'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onSurface,
+                          side: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.2),
+                            width: 2,
                           ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF4285F4).withOpacity(0.4),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: _isGoogleLoading ? null : _handleGoogleSignIn,
-                            borderRadius: BorderRadius.circular(16),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (_isGoogleLoading)
-                                    const SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
-                                      ),
-                                    )
-                                  else ...[
-                                    // Google "G" logo container with multicolor
-                                    Container(
-                                      width: 28,
-                                      height: 28,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Center(
-                                        child: ShaderMask(
-                                          shaderCallback: (bounds) => const LinearGradient(
-                                            colors: [
-                                              Color(0xFFEA4335), // Google Red
-                                              Color(0xFFFBBC05), // Google Yellow
-                                              Color(0xFF34A853), // Google Green
-                                              Color(0xFF4285F4), // Google Blue
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ).createShader(bounds),
-                                          child: const Text(
-                                            'G',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    const Text(
-                                      'Continue with Google',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -452,7 +404,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppTheme.paleBlue,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -461,7 +413,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               "Don't have an account? ",
                               style: TextStyle(
-                                color: AppTheme.textGrey,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
                                 fontSize: 14,
                               ),
                             ),
@@ -494,7 +449,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: 'Learning a new language opens new worlds! 🌍',
                         backgroundColor: Theme.of(context).colorScheme.surface,
                         iconColor: AppTheme.accentYellow,
-                        textColor: AppTheme.textGrey,
+                        textColor: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
                       ),
                     ],
                   ),

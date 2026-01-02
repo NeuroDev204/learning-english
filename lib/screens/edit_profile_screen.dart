@@ -460,14 +460,15 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           icon: const Icon(Icons.arrow_back, color: AppTheme.primaryBlue),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Edit Profile',
-          style: TextStyle(color: AppTheme.textDark),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: AppTheme.primaryBlue,
-          unselectedLabelColor: AppTheme.textGrey,
+          unselectedLabelColor:
+              Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           indicatorColor: AppTheme.primaryBlue,
           tabs: const [
             Tab(text: 'Profile'),
@@ -503,7 +504,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       width: 120,
                       height: 120,
                       decoration: BoxDecoration(
-                        color: AppTheme.paleBlue,
+                        color: Theme.of(context).colorScheme.surfaceVariant,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: AppTheme.primaryBlue,
@@ -562,7 +563,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                         decoration: BoxDecoration(
                           color: AppTheme.primaryBlue,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.surface,
+                            width: 3,
+                          ),
                         ),
                         child: const Icon(
                           Icons.camera_alt,
@@ -928,9 +932,15 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     setState(() => _dailyGoal = value.toInt());
                   },
                 ),
-                const Text(
+                Text(
                   'Slide to set your daily learning goal',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textGrey),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                  ),
                 ),
               ],
             ),
