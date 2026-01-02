@@ -1126,48 +1126,52 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Decorative emoji in corner
               const Positioned(
-                top: -5,
-                right: -5,
-                child: Text('🎯', style: TextStyle(fontSize: 35)),
+                top: -6,
+                right: -6,
+                child: Text('🎯', style: TextStyle(fontSize: 34)),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Daily Goal',
+                  Padding(
+                    padding: const EdgeInsets.only(right: 28),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Daily Goal',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text('🌟', style: TextStyle(fontSize: 20)),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                AppTheme.successGreen.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '$todayProgress/$dailyGoal XP',
                             style: TextStyle(
-                              fontSize: 18,
+                              color: AppTheme.successGreen,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.textDark,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Text('🌟', style: TextStyle(fontSize: 20)),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
                         ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.successGreen.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '$todayProgress/$dailyGoal XP',
-                          style: TextStyle(
-                            color: AppTheme.successGreen,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
 
