@@ -356,37 +356,94 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Google Sign-In Button
-                      OutlinedButton.icon(
-                        onPressed:
-                            _isGoogleLoading ? null : _handleGoogleSignIn,
-                        icon: _isGoogleLoading
-                            ? const SizedBox.shrink()
-                            : const Text('🔵', style: TextStyle(fontSize: 20)),
-                        label: _isGoogleLoading
-                            ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppTheme.primaryBlue,
-                                  ),
-                                ),
-                              )
-                            : const Text('Continue with Google'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.textDark,
-                          side: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.2),
-                            width: 2,
+                      // Google Sign-In Button - Prominent Style
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF4285F4), // Google Blue
+                              Color(0xFF34A853), // Google Green
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF4285F4).withOpacity(0.4),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _isGoogleLoading ? null : _handleGoogleSignIn,
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (_isGoogleLoading)
+                                    const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  else ...[
+                                    // Google "G" logo container with multicolor
+                                    Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Center(
+                                        child: ShaderMask(
+                                          shaderCallback: (bounds) => const LinearGradient(
+                                            colors: [
+                                              Color(0xFFEA4335), // Google Red
+                                              Color(0xFFFBBC05), // Google Yellow
+                                              Color(0xFF34A853), // Google Green
+                                              Color(0xFF4285F4), // Google Blue
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ).createShader(bounds),
+                                          child: const Text(
+                                            'G',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Continue with Google',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 32),
