@@ -76,7 +76,7 @@ class _VocabularyGenerateScreenState extends State<VocabularyGenerateScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ Đã lưu thành công $_wordCount từ mới!'),
+            content: Text(' Đã lưu thành công $_wordCount từ mới!'),
             backgroundColor: AppTheme.successGreen,
           ),
         );

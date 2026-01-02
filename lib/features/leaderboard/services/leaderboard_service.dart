@@ -14,18 +14,16 @@ class LeaderboardService {
     int limit = 100,
   }) async {
     try {
-      final usersSnapshot = await _firestore
-          .collection('users')
-          .limit(limit)
-          .get();
+      final usersSnapshot =
+          await _firestore.collection('users').limit(limit).get();
 
       final now = DateTime.now();
-      
+
       // Sửa: Tính weekStart từ thứ 2 đầu tuần
       final todayStart = DateTime(now.year, now.month, now.day);
       final daysFromMonday = (now.weekday - 1) % 7;
       final weekStart = todayStart.subtract(Duration(days: daysFromMonday));
-      
+
       final monthStart = DateTime(now.year, now.month, 1);
 
       final List<LeaderboardEntry> entries = [];
@@ -38,8 +36,6 @@ class LeaderboardService {
         final displayName = userData['displayName'] ?? 'Unknown';
         final photoUrl = userData['photoUrl'];
         final profile = userData['profile'] as Map<String, dynamic>?;
-        final totalXP = (profile?['totalXP'] as int?) ?? 0;
-        final currentStreak = (profile?['currentStreak'] as int?) ?? 0;
         final longestStreak = (profile?['longestStreak'] as int?) ?? 0;
 
         // Tính số quiz hoàn thành và điểm trung bình
@@ -49,18 +45,20 @@ class LeaderboardService {
             .collection('quiz_sessions')
             .get();
 
-        int completedQuizzes = sessionsSnapshot.docs.length;
-        int totalScore = 0;
-        int weeklyXP = 0;
-        int monthlyXP = 0;
-        final Set<String> weeklyDays = {};
-        final Set<String> monthlyDays = {};
+        // Biến tính toán cộng dồn từ sessions
+        int tXP = 0, tCorrect = 0, tQuestions = 0, tQuizzes = 0;
+        int wXP = 0, wCorrect = 0, wQuestions = 0, wQuizzes = 0;
+        int mXP = 0, mCorrect = 0, mQuestions = 0, mQuizzes = 0;
+
+        final Set<String> tDays = {};
+        final Set<String> wDays = {};
+        final Set<String> mDays = {};
 
         for (final sessionDoc in sessionsSnapshot.docs) {
           final sessionData = sessionDoc.data();
           final playedAtField = sessionData['playedAt'];
           DateTime playedAt = DateTime.now();
-          
+
           if (playedAtField is Timestamp) {
             playedAt = playedAtField.toDate();
           } else if (playedAtField is String) {
@@ -71,48 +69,97 @@ class LeaderboardService {
             }
           }
 
-          final scorePercentage = (sessionData['scorePercentage'] as int?) ?? 0;
           final xpEarned = (sessionData['xpEarned'] as int?) ?? 0;
+          final correct = (sessionData['correctCount'] as int?) ?? 0;
+          final total = (sessionData['questionCount'] as int?) ?? 0;
 
-          totalScore += scorePercentage;
-
-          // Sửa: Tính XP và streak days theo tuần/tháng với logic đúng
           final sessionDate = DateTime(
             playedAt.year,
             playedAt.month,
             playedAt.day,
           );
+          final dayKey = '${playedAt.year}-${playedAt.month}-${playedAt.day}';
 
-          if (sessionDate.isAtSameMomentAs(weekStart) || sessionDate.isAfter(weekStart)) {
-            weeklyXP += xpEarned;
-            final dayKey = '${playedAt.year}-${playedAt.month}-${playedAt.day}';
-            weeklyDays.add(dayKey);
+          // 1. TÍNH CHO TẤT CẢ (All Time) - Sửa lỗi sai lệch dữ liệu
+          tXP += xpEarned;
+          tQuizzes++;
+          tCorrect += correct;
+          tQuestions += total;
+          tDays.add(dayKey);
+
+          // 2. TÍNH CHO TUẦN
+          if (sessionDate.isAtSameMomentAs(weekStart) ||
+              sessionDate.isAfter(weekStart)) {
+            wXP += xpEarned;
+            wQuizzes++;
+            wCorrect += correct;
+            wQuestions += total;
+            wDays.add(dayKey);
           }
-          if (sessionDate.isAtSameMomentAs(monthStart) || sessionDate.isAfter(monthStart)) {
-            monthlyXP += xpEarned;
-            final dayKey = '${playedAt.year}-${playedAt.month}-${playedAt.day}';
-            monthlyDays.add(dayKey);
+
+          // 3. TÍNH CHO THÁNG
+          if (sessionDate.isAtSameMomentAs(monthStart) ||
+              sessionDate.isAfter(monthStart)) {
+            mXP += xpEarned;
+            mQuizzes++;
+            mCorrect += correct;
+            mQuestions += total;
+            mDays.add(dayKey);
           }
         }
 
-        final averageScore = completedQuizzes > 0
-            ? (totalScore / completedQuizzes)
-            : 0.0;
+        // Tính toán Streak (Chuỗi liên tiếp) thực tế từ lịch sử sessions
+        // Đảm bảo tính chính xác: phải là các ngày liên tiếp
+        int dynamicStreak = 0;
+        DateTime cursor = DateTime(now.year, now.month, now.day);
+        String cursorKey = '${cursor.year}-${cursor.month}-${cursor.day}';
+
+        // Kiểm tra hôm nay hoặc hôm qua có học không
+        if (!tDays.contains(cursorKey)) {
+          cursor = cursor.subtract(const Duration(days: 1));
+          cursorKey = '${cursor.year}-${cursor.month}-${cursor.day}';
+        }
+
+        // Đếm ngược các ngày liên tiếp
+        while (tDays.contains(cursorKey)) {
+          dynamicStreak++;
+          cursor = cursor.subtract(const Duration(days: 1));
+          cursorKey = '${cursor.year}-${cursor.month}-${cursor.day}';
+        }
+
+        // Xác định giá trị hiển thị dựa trên Period người dùng chọn
+        double currentAvgScore = 0;
+        int currentQuizzes = 0;
+
+        if (period == LeaderboardPeriod.weekly) {
+          currentAvgScore =
+              wQuestions > 0 ? (wCorrect / wQuestions * 100) : 0.0;
+          currentQuizzes = wQuizzes;
+        } else if (period == LeaderboardPeriod.monthly) {
+          currentAvgScore =
+              mQuestions > 0 ? (mCorrect / mQuestions * 100) : 0.0;
+          currentQuizzes = mQuizzes;
+        } else {
+          // All Time
+          currentAvgScore =
+              tQuestions > 0 ? (tCorrect / tQuestions * 100) : 0.0;
+          currentQuizzes = tQuizzes;
+        }
 
         entries.add(LeaderboardEntry(
           userId: userId,
           displayName: displayName,
           photoUrl: photoUrl,
-          totalXP: totalXP,
-          currentStreak: currentStreak,
+          totalXP: tXP, // Lấy từ calculation thay vì profile
+          currentStreak: dynamicStreak, // Sử dụng streak tính toán từ sessions
           longestStreak: longestStreak,
-          completedQuizzes: completedQuizzes,
-          averageScore: averageScore,
+          completedQuizzes: currentQuizzes,
+          averageScore: currentAvgScore,
           rank: 0, // Sẽ được set sau khi sort
-          weeklyXP: weeklyXP,
-          monthlyXP: monthlyXP,
-          weeklyStreakDays: weeklyDays.length,
-          monthlyStreakDays: monthlyDays.length,
+          weeklyXP: wXP,
+          monthlyXP: mXP,
+          weeklyStreakDays: wDays.length,
+          monthlyStreakDays: mDays.length,
         ));
       }
 
@@ -157,26 +204,34 @@ class LeaderboardService {
   ) {
     switch (criteria) {
       case LeaderboardCriteria.totalXP:
+        if (period == LeaderboardPeriod.weekly)
+          return entry.weeklyXP.toDouble();
+        if (period == LeaderboardPeriod.monthly)
+          return entry.monthlyXP.toDouble();
         return entry.totalXP.toDouble();
-      
+
       case LeaderboardCriteria.weeklyXP:
         return entry.weeklyXP.toDouble();
-      
+
       case LeaderboardCriteria.monthlyXP:
         return entry.monthlyXP.toDouble();
-      
+
       case LeaderboardCriteria.streak:
+        if (period == LeaderboardPeriod.weekly)
+          return entry.weeklyStreakDays.toDouble();
+        if (period == LeaderboardPeriod.monthly)
+          return entry.monthlyStreakDays.toDouble();
         return entry.currentStreak.toDouble();
-      
+
       case LeaderboardCriteria.weeklyStreak:
         return entry.weeklyStreakDays.toDouble();
-      
+
       case LeaderboardCriteria.monthlyStreak:
         return entry.monthlyStreakDays.toDouble();
-      
+
       case LeaderboardCriteria.completedQuizzes:
         return entry.completedQuizzes.toDouble();
-      
+
       case LeaderboardCriteria.averageScore:
         return entry.averageScore;
     }
@@ -190,13 +245,19 @@ class LeaderboardService {
   ) {
     switch (criteria) {
       case LeaderboardCriteria.totalXP:
+        if (period == LeaderboardPeriod.weekly) return '${entry.weeklyXP} XP';
+        if (period == LeaderboardPeriod.monthly) return '${entry.monthlyXP} XP';
         return '${entry.totalXP} XP';
       case LeaderboardCriteria.weeklyXP:
         return '${entry.weeklyXP} XP';
       case LeaderboardCriteria.monthlyXP:
         return '${entry.monthlyXP} XP';
       case LeaderboardCriteria.streak:
-        return '${entry.currentStreak} ngày';
+        if (period == LeaderboardPeriod.weekly)
+          return '${entry.weeklyStreakDays} ngày học';
+        if (period == LeaderboardPeriod.monthly)
+          return '${entry.monthlyStreakDays} ngày học';
+        return '${entry.currentStreak} ngày liên tiếp';
       case LeaderboardCriteria.weeklyStreak:
         return '${entry.weeklyStreakDays} ngày';
       case LeaderboardCriteria.monthlyStreak:
@@ -242,7 +303,7 @@ class LeaderboardService {
       criteria: criteria,
       period: period,
     );
-    
+
     try {
       return leaderboard.firstWhere(
         (entry) => entry.userId == currentUserId,
