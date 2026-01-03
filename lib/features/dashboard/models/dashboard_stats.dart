@@ -7,6 +7,8 @@ class DashboardStats {
   final double averageAccuracy;
   final int totalSessions;
   final DateTime lastUpdated;
+  final int weeklyStreakDays;
+  final int monthlyStreakDays;
 
   DashboardStats({
     required this.wordsLearnedToday,
@@ -17,6 +19,8 @@ class DashboardStats {
     required this.averageAccuracy,
     required this.totalSessions,
     required this.lastUpdated,
+    this.weeklyStreakDays = 0,
+    this.monthlyStreakDays = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -29,6 +33,8 @@ class DashboardStats {
       'averageAccuracy': averageAccuracy,
       'totalSessions': totalSessions,
       'lastUpdated': lastUpdated.toIso8601String(),
+      'weeklyStreakDays': weeklyStreakDays,
+      'monthlyStreakDays': monthlyStreakDays,
     };
   }
 
@@ -44,6 +50,8 @@ class DashboardStats {
       lastUpdated: map['lastUpdated'] != null
           ? DateTime.parse(map['lastUpdated'])
           : DateTime.now(),
+      weeklyStreakDays: map['weeklyStreakDays'] ?? 0,
+      monthlyStreakDays: map['monthlyStreakDays'] ?? 0,
     );
   }
 }

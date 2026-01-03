@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:learn_english/core/theme/app_theme.dart';
 
 class BarChartWidget extends StatelessWidget {
   final List<double> values;
@@ -32,8 +31,10 @@ class BarChartWidget extends StatelessWidget {
           child: Text(
             'Chưa có dữ liệu',
             style: TextStyle(
-                color:
-                    Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.6)),
           ),
         ),
       );
@@ -49,7 +50,7 @@ class BarChartWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -110,7 +111,7 @@ class BarChartWidget extends StatelessWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.6),
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -137,8 +138,10 @@ class BarChartWidget extends StatelessWidget {
                 valueLabel,
                 style: TextStyle(
                   fontSize: 12,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.6),
                 ),
               ),
             ],

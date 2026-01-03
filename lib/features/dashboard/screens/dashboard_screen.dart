@@ -98,7 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
@@ -153,7 +153,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         // Streak Widget
                         if (_stats != null)
-                          StreakWidget(streak: _stats!.currentStreak),
+                          StreakWidget(
+                            currentStreak: _stats!.currentStreak,
+                            weeklyStreakDays: _stats!.weeklyStreakDays,
+                            monthlyStreakDays: _stats!.monthlyStreakDays,
+                          ),
                         const SizedBox(height: 20),
 
                         // Stats Cards - Số từ học
@@ -162,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -244,7 +248,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -288,7 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 12),
