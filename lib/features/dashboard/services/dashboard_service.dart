@@ -24,18 +24,17 @@ class DashboardService {
 
       final now = DateTime.now();
       final todayStart = DateTime(now.year, now.month, now.day);
-      
+
       // Sửa: Tính weekStart từ thứ 2 đầu tuần
       // weekday: 1 = Monday, 7 = Sunday
       final daysFromMonday = (now.weekday - 1) % 7;
       final weekStart = todayStart.subtract(Duration(days: daysFromMonday));
-      
+
       final monthStart = DateTime(now.year, now.month, 1);
 
       // Lấy tất cả sessions
-      final allSessionsSnapshot = await sessionsRef
-          .orderBy('playedAt', descending: true)
-          .get();
+      final allSessionsSnapshot =
+          await sessionsRef.orderBy('playedAt', descending: true).get();
 
       final allSessions = allSessionsSnapshot.docs.map((doc) {
         final data = doc.data();
@@ -82,11 +81,14 @@ class DashboardService {
       int totalCorrect = 0;
       int totalQuestions = 0;
 
+      final Set<String> weekDays = {};
+      final Set<String> monthDays = {};
+      final Set<String> allDays = {};
+
       for (final session in allSessions) {
         // Đếm số từ đã làm quiz (số câu đã trả lời)
-        final answeredCount = session.answers
-            .where((a) => a.userAnswer.isNotEmpty)
-            .length;
+        final answeredCount =
+            session.answers.where((a) => a.userAnswer.isNotEmpty).length;
 
         // Sửa: Dùng >= thay vì isAfter để bao gồm cả ngày hôm nay/thứ 2/tháng này
         final sessionDate = DateTime(
@@ -95,14 +97,23 @@ class DashboardService {
           session.playedAt.day,
         );
 
-        if (sessionDate.isAtSameMomentAs(todayStart) || sessionDate.isAfter(todayStart)) {
+        final dayKey =
+            '${session.playedAt.year}-${session.playedAt.month}-${session.playedAt.day}';
+        allDays.add(dayKey);
+
+        if (sessionDate.isAtSameMomentAs(todayStart) ||
+            sessionDate.isAfter(todayStart)) {
           wordsToday += answeredCount;
         }
-        if (sessionDate.isAtSameMomentAs(weekStart) || sessionDate.isAfter(weekStart)) {
+        if (sessionDate.isAtSameMomentAs(weekStart) ||
+            sessionDate.isAfter(weekStart)) {
           wordsThisWeek += answeredCount;
+          weekDays.add(dayKey);
         }
-        if (sessionDate.isAtSameMomentAs(monthStart) || sessionDate.isAfter(monthStart)) {
+        if (sessionDate.isAtSameMomentAs(monthStart) ||
+            sessionDate.isAfter(monthStart)) {
           wordsThisMonth += answeredCount;
+          monthDays.add(dayKey);
         }
 
         totalXP += session.xpEarned;
@@ -111,14 +122,24 @@ class DashboardService {
       }
 
       // Tính % chính xác trung bình
-      final averageAccuracy = totalQuestions > 0
-          ? (totalCorrect / totalQuestions * 100)
-          : 0.0;
+      final averageAccuracy =
+          totalQuestions > 0 ? (totalCorrect / totalQuestions * 100) : 0.0;
 
-      // Lấy streak từ user profile
-      final userDoc = await _firestore.collection('users').doc(user.uid).get();
-      final profile = userDoc.data()?['profile'] as Map<String, dynamic>?;
-      final currentStreak = (profile?['currentStreak'] as int?) ?? 0;
+      // Tính toán Streak (Chuỗi liên tiếp) thực tế từ lịch sử sessions
+      int currentStreak = 0;
+      DateTime cursor = DateTime(now.year, now.month, now.day);
+      String cursorKey = '${cursor.year}-${cursor.month}-${cursor.day}';
+
+      if (!allDays.contains(cursorKey)) {
+        cursor = cursor.subtract(const Duration(days: 1));
+        cursorKey = '${cursor.year}-${cursor.month}-${cursor.day}';
+      }
+
+      while (allDays.contains(cursorKey)) {
+        currentStreak++;
+        cursor = cursor.subtract(const Duration(days: 1));
+        cursorKey = '${cursor.year}-${cursor.month}-${cursor.day}';
+      }
 
       return DashboardStats(
         wordsLearnedToday: wordsToday,
@@ -129,6 +150,8 @@ class DashboardService {
         averageAccuracy: averageAccuracy,
         totalSessions: allSessions.length,
         lastUpdated: DateTime.now(),
+        weeklyStreakDays: weekDays.length,
+        monthlyStreakDays: monthDays.length,
       );
     } catch (e) {
       debugPrint('Lỗi khi lấy dashboard stats: $e');
@@ -154,7 +177,8 @@ class DashboardService {
           .subtract(Duration(days: days - 1));
 
       final sessionsSnapshot = await sessionsRef
-          .where('playedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .where('playedAt',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
           .orderBy('playedAt')
           .get();
 
@@ -176,33 +200,33 @@ class DashboardService {
         }
 
         final dateKey = '${playedAt.year}-${playedAt.month}-${playedAt.day}';
-        
+
         // Parse answers để đếm số từ học (số câu đã trả lời)
         final answers = (data['answers'] as List<dynamic>?) ?? [];
         final wordsLearned = answers
             .where((a) => (a['userAnswer'] as String?)?.isNotEmpty ?? false)
             .length;
-        
+
         final xp = (data['xpEarned'] as int?) ?? 0;
         final correctCount = (data['correctCount'] as int?) ?? 0;
         final questionCount = (data['questionCount'] as int?) ?? 0;
-        final accuracy = questionCount > 0 
-            ? (correctCount / questionCount * 100) 
-            : 0.0;
+        final accuracy =
+            questionCount > 0 ? (correctCount / questionCount * 100) : 0.0;
 
         if (dataByDate.containsKey(dateKey)) {
           dataByDate[dateKey]!['xp'] = (dataByDate[dateKey]!['xp'] ?? 0) + xp;
-          dataByDate[dateKey]!['wordsLearned'] = 
+          dataByDate[dateKey]!['wordsLearned'] =
               (dataByDate[dateKey]!['wordsLearned'] ?? 0) + wordsLearned;
-          
+
           // Tính accuracy trung bình (tổng correct / tổng questions)
-          final totalCorrect = (dataByDate[dateKey]!['totalCorrect'] ?? 0) + correctCount;
-          final totalQuestions = (dataByDate[dateKey]!['totalQuestions'] ?? 0) + questionCount;
+          final totalCorrect =
+              (dataByDate[dateKey]!['totalCorrect'] ?? 0) + correctCount;
+          final totalQuestions =
+              (dataByDate[dateKey]!['totalQuestions'] ?? 0) + questionCount;
           dataByDate[dateKey]!['totalCorrect'] = totalCorrect;
           dataByDate[dateKey]!['totalQuestions'] = totalQuestions;
-          dataByDate[dateKey]!['accuracy'] = totalQuestions > 0 
-              ? (totalCorrect / totalQuestions * 100) 
-              : 0.0;
+          dataByDate[dateKey]!['accuracy'] =
+              totalQuestions > 0 ? (totalCorrect / totalQuestions * 100) : 0.0;
         } else {
           dataByDate[dateKey] = {
             'xp': xp,
@@ -220,7 +244,7 @@ class DashboardService {
         final date = startDate.add(Duration(days: i));
         final dateKey = '${date.year}-${date.month}-${date.day}';
         final dayData = dataByDate[dateKey];
-        
+
         dataPoints.add(ChartDataPoint(
           date: date,
           xp: dayData?['xp'] ?? 0,
@@ -249,6 +273,8 @@ class DashboardService {
         averageAccuracy: 0.0,
         totalSessions: 0,
         lastUpdated: DateTime.now(),
+        weeklyStreakDays: 0,
+        monthlyStreakDays: 0,
       ));
     }
 
