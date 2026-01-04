@@ -91,16 +91,16 @@ class _VocabularyGenerateScreenState extends State<VocabularyGenerateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: AppTheme.primaryBlue),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('AI Generate Vocabulary',
-            style: TextStyle(color: AppTheme.textDark)),
+        title: Text('AI Generate Vocabulary',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: Form(
         key: _formKey,
@@ -111,41 +111,54 @@ class _VocabularyGenerateScreenState extends State<VocabularyGenerateScreen> {
             children: [
               // Header icon
               Center(
-                child: Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                      color: AppTheme.paleBlue,
-                      borderRadius: BorderRadius.circular(20)),
-                  child: const Icon(Icons.auto_awesome,
-                      size: 50, color: AppTheme.primaryBlue),
+                child: Builder(
+                  builder: (context) => Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.background,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: const Icon(Icons.auto_awesome,
+                        size: 50, color: AppTheme.primaryBlue),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Topic info
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                    color: AppTheme.paleBlue,
-                    borderRadius: BorderRadius.circular(12)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Chủ đề:',
-                        style: TextStyle(color: AppTheme.textGrey)),
-                    const SizedBox(height: 4),
-                    Text(widget.topic.name,
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                  ],
+              Builder(
+                builder: (context) => Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Chủ đề:',
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.6))),
+                      const SizedBox(height: 4),
+                      Text(widget.topic.name,
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Số lượng từ
-              const Text('Số lượng từ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              Builder(
+                builder: (context) => Text('Số lượng từ',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface)),
+              ),
               const SizedBox(height: 12),
               Slider(
                 value: _wordCount.toDouble(),
@@ -156,13 +169,24 @@ class _VocabularyGenerateScreenState extends State<VocabularyGenerateScreen> {
                 onChanged: (v) => setState(() => _wordCount = v.toInt()),
               ),
               Center(
-                  child: Text('$_wordCount từ',
-                      style: const TextStyle(color: AppTheme.textGrey))),
+                  child: Builder(
+                builder: (context) => Text('$_wordCount từ',
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6))),
+              )),
               const SizedBox(height: 24),
 
               // Độ khó
-              const Text('Độ khó',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              Builder(
+                builder: (context) => Text('Độ khó',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface)),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -196,9 +220,14 @@ class _VocabularyGenerateScreenState extends State<VocabularyGenerateScreen> {
               // Preview kết quả
               if (_generatedVocab.isNotEmpty) ...[
                 const SizedBox(height: 32),
-                Text('Preview kết quả (${_generatedVocab.length} từ)',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold)),
+                Builder(
+                  builder: (context) => Text(
+                      'Preview kết quả (${_generatedVocab.length} từ)',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface)),
+                ),
                 const SizedBox(height: 16),
                 ListView.builder(
                   shrinkWrap: true,
@@ -247,21 +276,31 @@ class _VocabularyGenerateScreenState extends State<VocabularyGenerateScreen> {
       _ => AppTheme.primaryBlue,
     };
 
-    return GestureDetector(
-      onTap: () => setState(() => _selectedLevel = value),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: selected ? color : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: selected ? color : Colors.grey.shade300, width: 2),
-        ),
-        child: Center(
-          child: Text(label,
-              style: TextStyle(
-                  color: selected ? Colors.white : AppTheme.textGrey,
-                  fontWeight: FontWeight.w600)),
+    return Builder(
+      builder: (context) => GestureDetector(
+        onTap: () => setState(() => _selectedLevel = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: selected ? color : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+                color: selected
+                    ? color
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                width: 2),
+          ),
+          child: Center(
+            child: Text(label,
+                style: TextStyle(
+                    color: selected
+                        ? Colors.white
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
+                    fontWeight: FontWeight.w600)),
+          ),
         ),
       ),
     );

@@ -13,10 +13,10 @@ class ImportFilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: const Text('Tạo đề thi'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
       ),
       body: Consumer<ExamProvider>(
@@ -27,12 +27,12 @@ class ImportFilePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Header illustration
-                _buildHeader(),
+                _buildHeader(context),
 
                 const SizedBox(height: 32),
 
                 // Instructions
-                _buildInstructions(),
+                _buildInstructions(context),
 
                 const SizedBox(height: 24),
 
@@ -43,7 +43,7 @@ class ImportFilePage extends StatelessWidget {
 
                 // Selected file info (nếu có)
                 if (examProvider.selectedFile != null)
-                  _buildSelectedFileInfo(examProvider),
+                  _buildSelectedFileInfo(context, examProvider),
 
                 // Error message (nếu có)
                 if (examProvider.extractError != null)
@@ -62,10 +62,10 @@ class ImportFilePage extends StatelessWidget {
   }
 
   /// Header với icon và title
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         children: [
           // Icon container
@@ -95,23 +95,23 @@ class ImportFilePage extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          const Text(
+          Text(
             'Import tài liệu',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
           const SizedBox(height: 8),
 
-          const Text(
+          Text(
             'Tải lên file PDF hoặc Word để tự động tạo đề thi tiếng Anh',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: AppTheme.textGrey,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               height: 1.5,
             ),
           ),
@@ -121,7 +121,7 @@ class ImportFilePage extends StatelessWidget {
   }
 
   /// Instructions card
-  Widget _buildInstructions() {
+  Widget _buildInstructions(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -149,16 +149,18 @@ class ImportFilePage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildInstructionItem('📄', 'Hỗ trợ định dạng PDF và DOCX'),
-          _buildInstructionItem('📝', 'Nội dung nên là văn bản tiếng Anh'),
-          _buildInstructionItem('📊', 'Tự động tạo 4 loại câu hỏi'),
-          _buildInstructionItem('⏱️', 'Chọn thời gian làm bài linh hoạt'),
+          _buildInstructionItem(context, '📄', 'Hỗ trợ định dạng PDF và DOCX'),
+          _buildInstructionItem(
+              context, '📝', 'Nội dung nên là văn bản tiếng Anh'),
+          _buildInstructionItem(context, '📊', 'Tự động tạo 4 loại câu hỏi'),
+          _buildInstructionItem(
+              context, '⏱️', 'Chọn thời gian làm bài linh hoạt'),
         ],
       ),
     );
   }
 
-  Widget _buildInstructionItem(String icon, String text) {
+  Widget _buildInstructionItem(BuildContext context, String icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -168,7 +170,10 @@ class ImportFilePage extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 13, color: AppTheme.textDark),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
         ],
@@ -186,7 +191,7 @@ class ImportFilePage extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isExtracting
@@ -233,12 +238,12 @@ class ImportFilePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Nhấn để chọn file',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -246,7 +251,8 @@ class ImportFilePage extends StatelessWidget {
                 'PDF, DOCX (tối đa 10MB)',
                 style: TextStyle(
                   fontSize: 13,
-                  color: AppTheme.textGrey.withValues(alpha: 0.8),
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ],
@@ -257,7 +263,8 @@ class ImportFilePage extends StatelessWidget {
   }
 
   /// Selected file info
-  Widget _buildSelectedFileInfo(ExamProvider examProvider) {
+  Widget _buildSelectedFileInfo(
+      BuildContext context, ExamProvider examProvider) {
     final file = examProvider.selectedFile!;
     final stats = examProvider.contentStats;
 
@@ -297,10 +304,10 @@ class ImportFilePage extends StatelessWidget {
                   children: [
                     Text(
                       file.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: AppTheme.textDark,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -308,9 +315,12 @@ class ImportFilePage extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       _formatFileSize(file.size),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.textGrey,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -332,9 +342,9 @@ class ImportFilePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem('${stats['words']}', 'Từ'),
-                _buildStatItem('${stats['sentences']}', 'Câu'),
-                _buildStatItem('${stats['paragraphs']}', 'Đoạn'),
+                _buildStatItem(context, '${stats['words']}', 'Từ'),
+                _buildStatItem(context, '${stats['sentences']}', 'Câu'),
+                _buildStatItem(context, '${stats['paragraphs']}', 'Đoạn'),
               ],
             ),
           ],
@@ -343,7 +353,7 @@ class ImportFilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
+  Widget _buildStatItem(BuildContext context, String value, String label) {
     return Column(
       children: [
         Text(
@@ -357,7 +367,10 @@ class ImportFilePage extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppTheme.textGrey),
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          ),
         ),
       ],
     );
@@ -452,17 +465,24 @@ class ImportFilePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Để nhận diện câu hỏi có sẵn, file của bạn nên theo format:',
-                style: TextStyle(fontSize: 14, color: AppTheme.textGrey),
+                style: TextStyle(
+                  fontSize: 14,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.paleBlue,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.lightBlue),
+                  border: Border.all(
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  ),
                 ),
                 child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,12 +550,13 @@ class ImportFilePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 '💡 Nếu file chưa có định dạng trên, hệ thống sẽ tự sinh câu hỏi từ nội dung văn bản.',
                 style: TextStyle(
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
-                  color: AppTheme.textGrey,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ],

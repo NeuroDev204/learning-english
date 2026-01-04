@@ -7,7 +7,7 @@ class VocabularyEditScreen extends StatefulWidget {
   final Vocabulary vocabulary;
 
   const VocabularyEditScreen({Key? key, required this.vocabulary})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<VocabularyEditScreen> createState() => _VocabularyEditScreenState();
@@ -101,17 +101,17 @@ class _VocabularyEditScreenState extends State<VocabularyEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: AppTheme.primaryBlue),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Edit Vocabulary',
-          style: TextStyle(color: AppTheme.textDark),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
       body: Form(
@@ -123,17 +123,19 @@ class _VocabularyEditScreenState extends State<VocabularyEditScreen> {
             children: [
               // Icon header
               Center(
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppTheme.paleBlue,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.edit_outlined,
-                    size: 40,
-                    color: AppTheme.primaryBlue,
+                child: Builder(
+                  builder: (context) => Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      size: 40,
+                      color: AppTheme.primaryBlue,
+                    ),
                   ),
                 ),
               ),
@@ -218,12 +220,14 @@ class _VocabularyEditScreenState extends State<VocabularyEditScreen> {
               const SizedBox(height: 24),
 
               // Level selector
-              const Text(
-                'Difficulty Level *',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+              Builder(
+                builder: (context) => Text(
+                  'Difficulty Level *',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -241,53 +245,61 @@ class _VocabularyEditScreenState extends State<VocabularyEditScreen> {
               const SizedBox(height: 32),
 
               // Update info
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.paleBlue,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time,
-                          color: AppTheme.primaryBlue,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Created: ${_formatDate(widget.vocabulary.createdAt)}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textGrey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (widget.vocabulary.updatedAt != null) ...[
-                      const SizedBox(height: 4),
+              Builder(
+                builder: (context) => Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Row(
                         children: [
                           const Icon(
-                            Icons.update,
+                            Icons.access_time,
                             color: AppTheme.primaryBlue,
                             size: 16,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Updated: ${_formatDate(widget.vocabulary.updatedAt!)}',
-                            style: const TextStyle(
+                            'Created: ${_formatDate(widget.vocabulary.createdAt)}',
+                            style: TextStyle(
                               fontSize: 12,
-                              color: AppTheme.textGrey,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.6),
                             ),
                           ),
                         ],
                       ),
+                      if (widget.vocabulary.updatedAt != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.update,
+                              color: AppTheme.primaryBlue,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Updated: ${_formatDate(widget.vocabulary.updatedAt!)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -334,29 +346,35 @@ class _VocabularyEditScreenState extends State<VocabularyEditScreen> {
         color = AppTheme.primaryBlue;
     }
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedLevel = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? color : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : Colors.grey.shade300,
-            width: 2,
+    return Builder(
+      builder: (context) => GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedLevel = value;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? color
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+              width: 2,
+            ),
           ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppTheme.textGrey,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
           ),
         ),
