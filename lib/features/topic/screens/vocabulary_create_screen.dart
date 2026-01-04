@@ -7,7 +7,7 @@ class VocabularyCreateScreen extends StatefulWidget {
   final String topicId;
 
   const VocabularyCreateScreen({Key? key, required this.topicId})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<VocabularyCreateScreen> createState() => _VocabularyCreateScreenState();
@@ -92,17 +92,17 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: AppTheme.primaryBlue),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Add New Word',
-          style: TextStyle(color: AppTheme.textDark),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
       body: Form(
@@ -114,17 +114,19 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
             children: [
               // Icon header
               Center(
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppTheme.paleBlue,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.add_circle_outline,
-                    size: 40,
-                    color: AppTheme.primaryBlue,
+                child: Builder(
+                  builder: (context) => Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.add_circle_outline,
+                      size: 40,
+                      color: AppTheme.primaryBlue,
+                    ),
                   ),
                 ),
               ),
@@ -213,12 +215,14 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
               const SizedBox(height: 24),
 
               // ✅ NEW: Part of Speech
-              const Text(
-                'Part of Speech',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+              Builder(
+                builder: (context) => Text(
+                  'Part of Speech',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -227,34 +231,40 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
                 runSpacing: 8,
                 children: PartOfSpeech.all.map((pos) {
                   final isSelected = _selectedPartOfSpeech == pos;
-                  return ChoiceChip(
-                    label: Text(
-                      '${PartOfSpeech.getIcon(pos)} ${pos}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isSelected ? Colors.white : AppTheme.textDark,
+                  return Builder(
+                    builder: (context) => ChoiceChip(
+                      label: Text(
+                        '${PartOfSpeech.getIcon(pos)} ${pos}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isSelected
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedPartOfSpeech = selected ? pos : null;
+                        });
+                      },
+                      selectedColor: AppTheme.primaryBlue,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                     ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedPartOfSpeech = selected ? pos : null;
-                      });
-                    },
-                    selectedColor: AppTheme.primaryBlue,
-                    backgroundColor: Colors.grey.shade100,
                   );
                 }).toList(),
               ),
               const SizedBox(height: 24),
 
               // ✅ NEW: Tags
-              const Text(
-                'Tags (Multiple selection)',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+              Builder(
+                builder: (context) => Text(
+                  'Tags (Multiple selection)',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -263,38 +273,44 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
                 runSpacing: 8,
                 children: VocabularyTags.all.map((tag) {
                   final isSelected = _selectedTags.contains(tag);
-                  return FilterChip(
-                    label: Text(
-                      '${VocabularyTags.getIcon(tag)} ${tag}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isSelected ? Colors.white : AppTheme.textDark,
+                  return Builder(
+                    builder: (context) => FilterChip(
+                      label: Text(
+                        '${VocabularyTags.getIcon(tag)} ${tag}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isSelected
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            _selectedTags.add(tag);
+                          } else {
+                            _selectedTags.remove(tag);
+                          }
+                        });
+                      },
+                      selectedColor: AppTheme.accentPink,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                     ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedTags.add(tag);
-                        } else {
-                          _selectedTags.remove(tag);
-                        }
-                      });
-                    },
-                    selectedColor: AppTheme.accentPink,
-                    backgroundColor: Colors.grey.shade100,
                   );
                 }).toList(),
               ),
               const SizedBox(height: 24),
 
               // Level selector
-              const Text(
-                'Difficulty Level *',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+              Builder(
+                builder: (context) => Text(
+                  'Difficulty Level *',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -312,30 +328,35 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
               const SizedBox(height: 32),
 
               // Info box
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.paleBlue,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: AppTheme.primaryBlue,
-                      size: 20,
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Fields marked with * are required',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppTheme.textGrey,
+              Builder(
+                builder: (context) => Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: AppTheme.primaryBlue,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Fields marked with * are required',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.6),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -382,29 +403,35 @@ class _VocabularyCreateScreenState extends State<VocabularyCreateScreen> {
         color = AppTheme.primaryBlue;
     }
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedLevel = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? color : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : Colors.grey.shade300,
-            width: 2,
+    return Builder(
+      builder: (context) => GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedLevel = value;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? color
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+              width: 2,
+            ),
           ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppTheme.textGrey,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
           ),
         ),

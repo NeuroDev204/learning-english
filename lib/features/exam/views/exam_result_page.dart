@@ -12,10 +12,10 @@ class ExamResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: const Text('Kết quả'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
@@ -128,46 +128,52 @@ class ExamResultPage extends StatelessWidget {
 
   /// Stats grid
   Widget _buildStatsGrid(ExamResult result) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.check_circle,
-              iconColor: AppTheme.successGreen,
-              value: '${result.score}',
-              label: 'Đúng',
+    return Builder(
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                icon: Icons.check_circle,
+                iconColor: AppTheme.successGreen,
+                value: '${result.score}',
+                label: 'Đúng',
+                context: context,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.cancel,
-              iconColor: AppTheme.errorRed,
-              value: '${result.wrongCount}',
-              label: 'Sai',
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                icon: Icons.cancel,
+                iconColor: AppTheme.errorRed,
+                value: '${result.wrongCount}',
+                label: 'Sai',
+                context: context,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.remove_circle,
-              iconColor: AppTheme.textGrey,
-              value: '${result.unansweredCount}',
-              label: 'Bỏ qua',
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                icon: Icons.remove_circle,
+                iconColor: AppTheme.textGrey,
+                value: '${result.unansweredCount}',
+                label: 'Bỏ qua',
+                context: context,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.timer,
-              iconColor: AppTheme.primaryBlue,
-              value: result.formattedDuration,
-              label: 'Thời gian',
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                icon: Icons.timer,
+                iconColor: AppTheme.primaryBlue,
+                value: result.formattedDuration,
+                label: 'Thời gian',
+                context: context,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -177,26 +183,30 @@ class ExamResultPage extends StatelessWidget {
     required Color iconColor,
     required String value,
     required String label,
+    required BuildContext context,
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         children: [
           Icon(icon, color: iconColor, size: 24),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppTheme.textGrey),
+            style: TextStyle(
+                fontSize: 11,
+                color:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
           ),
         ],
       ),
@@ -259,21 +269,24 @@ class ExamResultPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Icon(Icons.rate_review, color: AppTheme.accentPurple, size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Xem lại bài làm',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textDark,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Builder(
+            builder: (context) => Row(
+              children: [
+                const Icon(Icons.rate_review,
+                    color: AppTheme.accentPurple, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Xem lại bài làm',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 

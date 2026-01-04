@@ -20,10 +20,10 @@ class _SelectTimePageState extends State<SelectTimePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: const Text('Cài đặt đề thi'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
       ),
       body: Consumer<ExamProvider>(
@@ -66,20 +66,21 @@ class _SelectTimePageState extends State<SelectTimePage> {
   Widget _buildDurationSection() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.timer_outlined, color: AppTheme.primaryBlue, size: 24),
-              SizedBox(width: 12),
+              const Icon(Icons.timer_outlined,
+                  color: AppTheme.primaryBlue, size: 24),
+              const SizedBox(width: 12),
               Text(
                 'Thời gian làm bài',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textDark,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -87,9 +88,12 @@ class _SelectTimePageState extends State<SelectTimePage> {
 
           const SizedBox(height: 8),
 
-          const Text(
+          Text(
             'Chọn thời gian phù hợp với số câu hỏi',
-            style: TextStyle(fontSize: 13, color: AppTheme.textGrey),
+            style: TextStyle(
+                fontSize: 13,
+                color:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
           ),
 
           const SizedBox(height: 20),
@@ -114,49 +118,58 @@ class _SelectTimePageState extends State<SelectTimePage> {
 
     return GestureDetector(
       onTap: () => setState(() => _selectedDurationIndex = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryBlue.withValues(alpha: 0.1)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
+      child: Builder(
+        builder: (context) => AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
             color: isSelected
-                ? AppTheme.primaryBlue
-                : AppTheme.lightBlue.withValues(alpha: 0.5),
-            width: isSelected ? 2.5 : 1.5,
+                ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected
+                  ? AppTheme.primaryBlue
+                  : AppTheme.lightBlue.withValues(alpha: 0.5),
+              width: isSelected ? 2.5 : 1.5,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
-        child: Column(
-          children: [
-            Text(
-              '${option.minutes}',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? AppTheme.primaryBlue : AppTheme.textDark,
+          child: Column(
+            children: [
+              Text(
+                '${option.minutes}',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? AppTheme.primaryBlue
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'phút',
-              style: TextStyle(
-                fontSize: 12,
-                color: isSelected ? AppTheme.primaryBlue : AppTheme.textGrey,
+              const SizedBox(height: 4),
+              Text(
+                'phút',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected
+                      ? AppTheme.primaryBlue
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -166,27 +179,27 @@ class _SelectTimePageState extends State<SelectTimePage> {
   Widget _buildQuestionCountSection() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.quiz_outlined,
                     color: AppTheme.accentPurple,
                     size: 24,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
                     'Số câu hỏi',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -234,16 +247,26 @@ class _SelectTimePageState extends State<SelectTimePage> {
           ),
 
           // Labels
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 '5 câu',
-                style: TextStyle(fontSize: 12, color: AppTheme.textGrey),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6)),
               ),
               Text(
                 '30 câu',
-                style: TextStyle(fontSize: 12, color: AppTheme.textGrey),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6)),
               ),
             ],
           ),
@@ -264,37 +287,42 @@ class _SelectTimePageState extends State<SelectTimePage> {
     final fillCount = (total * 0.25).round();
     final tfCount = total - vocabCount - readingCount - fillCount;
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.paleBlue,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            'Phân bố câu hỏi:',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textGrey,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.center,
-            children: [
-              _buildBreakdownChip('📝 Từ vựng', vocabCount, 0xFF5EB1FF),
-              _buildBreakdownChip('📖 Đọc hiểu', readingCount, 0xFFA78BFA),
-              _buildBreakdownChip('✏️ Điền từ', fillCount, 0xFFFFD93D),
-              _buildBreakdownChip('✓✗ Đúng/Sai', tfCount, 0xFF4ADE80),
-            ],
-          ),
-        ],
-      ),
-    );
+    return Builder(
+        builder: (context) => Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Phân bố câu hỏi:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _buildBreakdownChip('📝 Từ vựng', vocabCount, 0xFF5EB1FF),
+                      _buildBreakdownChip(
+                          '📖 Đọc hiểu', readingCount, 0xFFA78BFA),
+                      _buildBreakdownChip('✏️ Điền từ', fillCount, 0xFFFFD93D),
+                      _buildBreakdownChip('✓✗ Đúng/Sai', tfCount, 0xFF4ADE80),
+                    ],
+                  ),
+                ],
+              ),
+            ));
   }
 
   Widget _buildBreakdownChip(String label, int count, int colorValue) {
@@ -408,7 +436,7 @@ class _SelectTimePageState extends State<SelectTimePage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),

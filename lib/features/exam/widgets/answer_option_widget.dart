@@ -33,7 +33,7 @@ class AnswerOptionWidget extends StatelessWidget {
   }
 
   /// Xác định màu nền dựa trên trạng thái
-  Color _getBackgroundColor() {
+  Color _getBackgroundColor(BuildContext context) {
     if (showResult) {
       if (isCorrect == true) {
         return AppTheme.successGreen.withValues(alpha: 0.15);
@@ -46,7 +46,7 @@ class AnswerOptionWidget extends StatelessWidget {
       return AppTheme.primaryBlue.withValues(alpha: 0.15);
     }
 
-    return Colors.white;
+    return Theme.of(context).colorScheme.surface;
   }
 
   /// Xác định màu border dựa trên trạng thái
@@ -100,127 +100,130 @@ class AnswerOptionWidget extends StatelessWidget {
     final icon = _getIcon();
     final isDisabled = showResult || onTap == null;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: isDisabled ? null : onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _getBackgroundColor(),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _getBorderColor(),
-                width: isSelected ? 2.5 : 1.5,
-              ),
-              boxShadow: isSelected && !showResult
-                  ? [
-                      BoxShadow(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Row(
-              children: [
-                // Option letter circle
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected && !showResult
-                        ? AppTheme.primaryBlue
-                        : _getBorderColor().withValues(alpha: 0.3),
-                    border: Border.all(color: _getLetterColor(), width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      optionLetter,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: isSelected && !showResult
-                            ? Colors.white
-                            : _getLetterColor(),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 16),
-
-                // Option text
-                Expanded(
-                  child: Text(
-                    text,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                      color: AppTheme.textDark,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-
-                // Result icon
-                if (icon != null) ...[
-                  const SizedBox(width: 12),
-                  Icon(
-                    icon,
-                    color: isCorrect == true
-                        ? AppTheme.successGreen
-                        : AppTheme.errorRed,
-                    size: 24,
-                  ),
-                ],
-
-                // Radio indicator (khi chưa submit)
-                if (!showResult) ...[
-                  const SizedBox(width: 12),
-                  AnimatedContainer(
+    return Builder(
+        builder: (context) => AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: isDisabled ? null : onTap,
+                  borderRadius: BorderRadius.circular(16),
+                  child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    width: 22,
-                    height: 22,
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      color: _getBackgroundColor(context),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected
-                            ? AppTheme.primaryBlue
-                            : AppTheme.textGrey.withValues(alpha: 0.5),
-                        width: 2,
+                        color: _getBorderColor(),
+                        width: isSelected ? 2.5 : 1.5,
                       ),
+                      boxShadow: isSelected && !showResult
+                          ? [
+                              BoxShadow(
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: isSelected
-                        ? Center(
-                            child: Container(
-                              width: 12,
-                              height: 12,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppTheme.primaryBlue,
+                    child: Row(
+                      children: [
+                        // Option letter circle
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isSelected && !showResult
+                                ? AppTheme.primaryBlue
+                                : _getBorderColor().withValues(alpha: 0.3),
+                            border:
+                                Border.all(color: _getLetterColor(), width: 2),
+                          ),
+                          child: Center(
+                            child: Text(
+                              optionLetter,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: isSelected && !showResult
+                                    ? Colors.white
+                                    : _getLetterColor(),
                               ),
                             ),
-                          )
-                        : null,
+                          ),
+                        ),
+
+                        const SizedBox(width: 16),
+
+                        // Option text
+                        Expanded(
+                          child: Text(
+                            text,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+
+                        // Result icon
+                        if (icon != null) ...[
+                          const SizedBox(width: 12),
+                          Icon(
+                            icon,
+                            color: isCorrect == true
+                                ? AppTheme.successGreen
+                                : AppTheme.errorRed,
+                            size: 24,
+                          ),
+                        ],
+
+                        // Radio indicator (khi chưa submit)
+                        if (!showResult) ...[
+                          const SizedBox(width: 12),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppTheme.primaryBlue
+                                    : AppTheme.textGrey.withValues(alpha: 0.5),
+                                width: 2,
+                              ),
+                            ),
+                            child: isSelected
+                                ? Center(
+                                    child: Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppTheme.primaryBlue,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+                ),
+              ),
+            ));
   }
 }

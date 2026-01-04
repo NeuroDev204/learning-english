@@ -11,10 +11,10 @@ class PreviewContentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.paleBlue,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: const Text('Xem nội dung'),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         actions: [
           TextButton.icon(
@@ -33,7 +33,7 @@ class PreviewContentPage extends StatelessWidget {
           return Column(
             children: [
               // Stats bar
-              _buildStatsBar(examProvider),
+              _buildStatsBar(context, examProvider),
 
               // Content preview
               Expanded(child: _buildContentPreview(examProvider)),
@@ -48,14 +48,14 @@ class PreviewContentPage extends StatelessWidget {
   }
 
   /// Stats bar hiển thị thống kê nội dung
-  Widget _buildStatsBar(ExamProvider examProvider) {
+  Widget _buildStatsBar(BuildContext context, ExamProvider examProvider) {
     final stats = examProvider.contentStats;
     final fileName = examProvider.selectedFile?.name ?? 'Unknown';
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -86,10 +86,10 @@ class PreviewContentPage extends StatelessWidget {
               Expanded(
                 child: Text(
                   fileName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -117,26 +117,28 @@ class PreviewContentPage extends StatelessWidget {
   }
 
   Widget _buildStatChip(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppTheme.paleBlue,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: AppTheme.primaryBlue),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textDark,
+    return Builder(
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: AppTheme.primaryBlue),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -145,52 +147,55 @@ class PreviewContentPage extends StatelessWidget {
   Widget _buildContentPreview(ExamProvider examProvider) {
     final content = examProvider.extractedContent ?? '';
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: AppTheme.whiteCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Preview header
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.paleBlue,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
+    return Builder(
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(16),
+        decoration: AppTheme.whiteCardDecoration(context: context),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Preview header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.preview,
+                      color: AppTheme.primaryBlue, size: 20),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Nội dung đã trích xuất',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: const Row(
-              children: [
-                Icon(Icons.preview, color: AppTheme.primaryBlue, size: 20),
-                SizedBox(width: 10),
-                Text(
-                  'Nội dung đã trích xuất',
+
+            // Content text
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: SelectableText(
+                  content,
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    fontSize: 14,
+                    height: 1.7,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          // Content text
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: SelectableText(
-                content,
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.7,
-                  color: AppTheme.textDark,
-                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -200,7 +205,7 @@ class PreviewContentPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -226,18 +231,21 @@ class PreviewContentPage extends StatelessWidget {
                   width: 1,
                 ),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.auto_awesome,
                     color: AppTheme.warningYellow,
                     size: 20,
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Hệ thống sẽ tự động phân tích và tạo câu hỏi',
-                      style: TextStyle(fontSize: 13, color: AppTheme.textDark),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ),
                 ],

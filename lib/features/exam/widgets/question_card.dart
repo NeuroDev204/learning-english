@@ -31,7 +31,7 @@ class QuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: AppTheme.whiteCardDecoration(),
+      decoration: AppTheme.whiteCardDecoration(context: context),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -135,8 +135,7 @@ class QuestionCard extends StatelessWidget {
 
   /// Status indicator (đúng/sai)
   Widget _buildStatusIndicator() {
-    final isCorrect =
-        selectedAnswer != null &&
+    final isCorrect = selectedAnswer != null &&
         selectedAnswer != -1 &&
         selectedAnswer == question.correctAnswerIndex;
     final isUnanswered = selectedAnswer == null || selectedAnswer == -1;
@@ -202,88 +201,93 @@ class QuestionCard extends StatelessWidget {
 
   /// Passage box cho Reading Comprehension
   Widget _buildPassage() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.paleBlue,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.lightBlue.withValues(alpha: 0.5),
-          width: 1.5,
+    return Builder(
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.background,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.lightBlue.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.menu_book, size: 18, color: AppTheme.accentPurple),
-              SizedBox(width: 8),
-              Text(
-                'Đoạn văn',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.accentPurple,
-                  fontSize: 13,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.menu_book, size: 18, color: AppTheme.accentPurple),
+                SizedBox(width: 8),
+                Text(
+                  'Đoạn văn',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.accentPurple,
+                    fontSize: 13,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            question.passage!,
-            style: const TextStyle(
-              fontSize: 14,
-              height: 1.6,
-              color: AppTheme.textDark,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              question.passage!,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.6,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   /// Blank sentence box cho Fill in Blanks
   Widget _buildBlankSentence() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.accentYellow.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.accentYellow.withValues(alpha: 0.5),
-          width: 1.5,
+    return Builder(
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.accentYellow.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.accentYellow.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.edit_note, size: 18, color: AppTheme.textDark),
-              SizedBox(width: 8),
-              Text(
-                'Điền từ vào chỗ trống',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textDark,
-                  fontSize: 13,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.edit_note,
+                    size: 18, color: Theme.of(context).colorScheme.onSurface),
+                const SizedBox(width: 8),
+                Text(
+                  'Điền từ vào chỗ trống',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 13,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                fontSize: 16,
-                height: 1.6,
-                color: AppTheme.textDark,
-              ),
-              children: _buildBlankSentenceSpans(),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.6,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                children: _buildBlankSentenceSpans(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -317,13 +321,15 @@ class QuestionCard extends StatelessWidget {
 
   /// Question text
   Widget _buildQuestionText() {
-    return Text(
-      question.question,
-      style: const TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.w600,
-        color: AppTheme.textDark,
-        height: 1.5,
+    return Builder(
+      builder: (context) => Text(
+        question.question,
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.onSurface,
+          height: 1.5,
+        ),
       ),
     );
   }
@@ -333,9 +339,8 @@ class QuestionCard extends StatelessWidget {
     return Column(
       children: List.generate(question.options.length, (index) {
         final isSelected = selectedAnswer == index;
-        final isCorrect = showResult
-            ? index == question.correctAnswerIndex
-            : null;
+        final isCorrect =
+            showResult ? index == question.correctAnswerIndex : null;
 
         return AnswerOptionWidget(
           index: index,
@@ -383,12 +388,14 @@ class QuestionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            question.explanation!,
-            style: const TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: AppTheme.textDark,
+          Builder(
+            builder: (context) => Text(
+              question.explanation!,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
         ],

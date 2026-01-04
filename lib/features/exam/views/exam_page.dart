@@ -58,6 +58,7 @@ class _ExamPageState extends State<ExamPage> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
@@ -106,7 +107,7 @@ class _ExamPageState extends State<ExamPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppTheme.paleBlue,
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: _buildAppBar(),
         body: Consumer<ExamProvider>(
           builder: (context, examProvider, child) {
@@ -134,7 +135,7 @@ class _ExamPageState extends State<ExamPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.close),
@@ -160,53 +161,59 @@ class _ExamPageState extends State<ExamPage> {
 
   /// Progress bar hiển thị tiến độ
   Widget _buildProgressBar(ExamProvider examProvider) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: Colors.white,
-      child: Column(
-        children: [
-          // Progress indicators
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Câu ${examProvider.currentQuestionIndex + 1}/${examProvider.totalQuestions}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
-                ),
+    return Builder(
+        builder: (context) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: Theme.of(context).colorScheme.surface,
+              child: Column(
+                children: [
+                  // Progress indicators
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Câu ${examProvider.currentQuestionIndex + 1}/${examProvider.totalQuestions}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        'Đã trả lời: ${examProvider.answeredCount}/${examProvider.totalQuestions}',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.6)),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Linear progress
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: (examProvider.currentQuestionIndex + 1) /
+                          examProvider.totalQuestions,
+                      backgroundColor:
+                          AppTheme.lightBlue.withValues(alpha: 0.3),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppTheme.primaryBlue,
+                      ),
+                      minHeight: 8,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Question dots
+                  _buildQuestionDots(examProvider),
+                ],
               ),
-              Text(
-                'Đã trả lời: ${examProvider.answeredCount}/${examProvider.totalQuestions}',
-                style: const TextStyle(fontSize: 13, color: AppTheme.textGrey),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 10),
-
-          // Linear progress
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value:
-                  (examProvider.currentQuestionIndex + 1) /
-                  examProvider.totalQuestions,
-              backgroundColor: AppTheme.lightBlue.withValues(alpha: 0.3),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AppTheme.primaryBlue,
-              ),
-              minHeight: 8,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          // Question dots
-          _buildQuestionDots(examProvider),
-        ],
-      ),
-    );
+            ));
   }
 
   Widget _buildQuestionDots(ExamProvider examProvider) {
@@ -216,8 +223,7 @@ class _ExamPageState extends State<ExamPage> {
         scrollDirection: Axis.horizontal,
         itemCount: examProvider.totalQuestions,
         itemBuilder: (context, index) {
-          final isAnswered =
-              index < examProvider.userAnswers.length &&
+          final isAnswered = index < examProvider.userAnswers.length &&
               examProvider.userAnswers[index] != -1;
           final isCurrent = index == examProvider.currentQuestionIndex;
 
@@ -231,15 +237,15 @@ class _ExamPageState extends State<ExamPage> {
                 color: isCurrent
                     ? AppTheme.primaryBlue
                     : isAnswered
-                    ? AppTheme.successGreen.withValues(alpha: 0.3)
-                    : AppTheme.lightBlue.withValues(alpha: 0.3),
+                        ? AppTheme.successGreen.withValues(alpha: 0.3)
+                        : AppTheme.lightBlue.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: isCurrent
                       ? AppTheme.primaryBlue
                       : isAnswered
-                      ? AppTheme.successGreen
-                      : AppTheme.lightBlue,
+                          ? AppTheme.successGreen
+                          : AppTheme.lightBlue,
                   width: 1.5,
                 ),
               ),
@@ -252,8 +258,8 @@ class _ExamPageState extends State<ExamPage> {
                     color: isCurrent
                         ? Colors.white
                         : isAnswered
-                        ? AppTheme.successGreen
-                        : AppTheme.textGrey,
+                            ? AppTheme.successGreen
+                            : AppTheme.textGrey,
                   ),
                 ),
               ),
@@ -299,80 +305,83 @@ class _ExamPageState extends State<ExamPage> {
     final isLastQuestion =
         examProvider.currentQuestionIndex == examProvider.totalQuestions - 1;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            // Previous button
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: isFirstQuestion ? null : _previousQuestion,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Trước'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+    return Builder(
+        builder: (context) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
                   ),
+                ],
+              ),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    // Previous button
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: isFirstQuestion ? null : _previousQuestion,
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text('Trước'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // Submit button (nếu là câu cuối hoặc đã trả lời hết)
+                    if (isLastQuestion ||
+                        examProvider.answeredCount ==
+                            examProvider.totalQuestions)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _showSubmitConfirmDialog,
+                          icon: const Icon(Icons.send, color: Colors.white),
+                          label: const Text(
+                            'Nộp bài',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.successGreen,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: isLastQuestion ? null : _nextQuestion,
+                          icon: const Icon(Icons.arrow_forward,
+                              color: Colors.white),
+                          label: const Text(
+                            'Tiếp',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryBlue,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            ),
-
-            const SizedBox(width: 12),
-
-            // Submit button (nếu là câu cuối hoặc đã trả lời hết)
-            if (isLastQuestion ||
-                examProvider.answeredCount == examProvider.totalQuestions)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _showSubmitConfirmDialog,
-                  icon: const Icon(Icons.send, color: Colors.white),
-                  label: const Text(
-                    'Nộp bài',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.successGreen,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: isLastQuestion ? null : _nextQuestion,
-                  icon: const Icon(Icons.arrow_forward, color: Colors.white),
-                  label: const Text(
-                    'Tiếp',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+            ));
   }
 
   // =============== NAVIGATION ===============
@@ -411,6 +420,7 @@ class _ExamPageState extends State<ExamPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
@@ -449,6 +459,7 @@ class _ExamPageState extends State<ExamPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
